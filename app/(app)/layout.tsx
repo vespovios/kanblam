@@ -34,7 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     }),
     prisma.user.findMany({
       where: { workspaceId },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, kind: true },
       orderBy: { email: "asc" },
     }),
     prisma.priority.findMany({

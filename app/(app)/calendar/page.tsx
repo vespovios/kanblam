@@ -109,7 +109,7 @@ export default async function CalendarPage({ searchParams }: Props) {
       }),
       prisma.user.findMany({
         where: { workspaceId: user.workspaceId },
-        select: { id: true, name: true, email: true },
+        select: { id: true, name: true, email: true, kind: true },
         orderBy: { name: "asc" },
       }),
       prisma.priority.findMany({

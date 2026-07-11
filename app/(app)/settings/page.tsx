@@ -46,7 +46,7 @@ export default async function SettingsPage() {
         prisma.user.findMany({
           where: { workspaceId: user.workspaceId },
           orderBy: { createdAt: "asc" },
-          select: { id: true, email: true, name: true, role: true, createdAt: true },
+          select: { id: true, email: true, name: true, role: true, kind: true, createdAt: true },
         }),
         prisma.invite.findMany({
           where: {

@@ -43,7 +43,7 @@ export default async function EisenhowerPage({ searchParams }: Props) {
       }),
       prisma.user.findMany({
         where: { workspaceId: user.workspaceId },
-        select: { id: true, name: true, email: true },
+        select: { id: true, name: true, email: true, kind: true },
         orderBy: { name: "asc" },
       }),
       prisma.tag.findMany({

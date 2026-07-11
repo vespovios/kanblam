@@ -6,7 +6,7 @@ import type { CreateCommentInput } from "@/lib/validators/comment";
  *  Deleted users leave their comments behind with a null author. */
 
 const COMMENT_INCLUDE = {
-  author: { select: { id: true, name: true } },
+  author: { select: { id: true, name: true, kind: true } },
 } as const;
 
 async function taskInWorkspace(workspaceId: string, taskId: string): Promise<boolean> {
