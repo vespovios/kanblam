@@ -89,6 +89,18 @@ const VIEW_FEATURES: ViewFeature[] = [
     image: "/images/docs/quick-add.png",
     alt: "Quick Add palette parsing project, tag, priority, and due-date tokens",
   },
+  {
+    title: "Agents are members here",
+    tagline: "Your AI agent joins the board — not a chatbot bolted on the side.",
+    body: "Add an agent as a workspace member, hand it an API token, and assign it tasks like anyone else. It works through the documented REST API from wherever you run it, and every move and comment shows up on the board in real time, attributed to the agent.",
+    bullets: [
+      "First-class member: assignable, visible, accountable",
+      "Bring your own agent — any framework, one OpenAPI spec",
+      "Free on every plan; KanBlam never runs the agent for you",
+    ],
+    image: "/images/docs/agent-members.png",
+    alt: "KanBlam task drawer showing a task assigned to an agent member with an agent-authored comment",
+  },
 ];
 
 /** Everything that doesn't need a screenshot to make its case. */
