@@ -61,6 +61,20 @@ describe("agent token minting", () => {
     expect(res.status).toBe(403);
   });
 
+  it("404 when an admin of another workspace targets the agent (no cross-workspace minting)", async () => {
+    const agent = await createAgentMember(seed.workspaceId, { name: "A" });
+    const otherWs = await prisma.workspace.create({ data: { name: "OtherWS" } });
+    const otherAdmin = await prisma.user.create({
+      data: { workspaceId: otherWs.id, email: "admin@other.local", role: "ADMIN", name: "Other Admin" },
+    });
+    asUser(otherAdmin.id, "ADMIN", otherWs.id);
+    const res = await mintRoute(jsonReq({ name: "x", scopes: ["read"] }), {
+      params: Promise.resolve({ id: agent.id }),
+    });
+    expect(res.status).toBe(404);
+    expect(await prisma.apiToken.count({ where: { userId: agent.id } })).toBe(0);
+  });
+
   it("403 when the JWT says ADMIN but the DB row was demoted (fresh-role check)", async () => {
     const agent = await createAgentMember(seed.workspaceId, { name: "A" });
     await prisma.user.update({ where: { id: seed.adminId }, data: { role: "MEMBER" } });

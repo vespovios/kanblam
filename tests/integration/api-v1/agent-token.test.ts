@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterAll } from "vitest";
+import { it, expect, beforeEach, afterAll } from "vitest";
 import { PrismaClient } from "@prisma/client";
 import { setupTestWorkspace, type SeededWorkspace } from "@/tests/integration/helpers/workspace";
 import { GET as getWorkspace } from "@/app/api/v1/workspace/route";
