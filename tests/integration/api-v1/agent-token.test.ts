@@ -2,6 +2,7 @@ import { it, expect, beforeEach, afterAll } from "vitest";
 import { PrismaClient } from "@prisma/client";
 import { setupTestWorkspace, type SeededWorkspace } from "@/tests/integration/helpers/workspace";
 import { GET as getWorkspace } from "@/app/api/v1/workspace/route";
+import { GET as getMembers } from "@/app/api/v1/members/route";
 import { POST as postComment } from "@/app/api/v1/tasks/[id]/comments/route";
 import { createAgentMember } from "@/lib/agent-members/service";
 import { createApiToken } from "@/lib/api-tokens/service";
@@ -62,4 +63,20 @@ it("agent token attributes a posted comment to the agent in the DB", async () =>
 
   const row = await appPrisma.comment.findUniqueOrThrow({ where: { id: body.comment.id } });
   expect(row.authorId).toBe(agent.id);
+});
+
+it("members reference includes kind", async () => {
+  const agent = await createAgentMember(seed.workspaceId, { name: "Flight Computer" });
+  const { token } = await createApiToken(seed.adminId, { name: "t", scopes: ["read"] });
+  const res = await getMembers(
+    new Request("http://localhost/api/v1/members", {
+      headers: { authorization: `Bearer ${token}` },
+    }),
+    extra,
+  );
+  expect(res.status).toBe(200);
+  const { members } = await res.json();
+  const kinds = Object.fromEntries(members.map((m: any) => [m.id, m.kind]));
+  expect(kinds[agent.id]).toBe("agent");
+  expect(kinds[seed.adminId]).toBe("human");
 });
