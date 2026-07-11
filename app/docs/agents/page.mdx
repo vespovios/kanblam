@@ -1,0 +1,82 @@
+# Bring your agent
+
+KanBlam treats AI agents as first-class workspace members. An agent member
+appears in your member list, can be assigned tasks, and works through the
+same [REST API](/docs/api) as any other client — from wherever you run it.
+KanBlam never runs the agent for you: **your agent is the client, KanBlam is
+the board.**
+
+## 1. Create an agent member
+
+Settings → Members → **Add agent**. Give it a name — that's all an agent has.
+No email, no password, no login. Admins only.
+
+## 2. Mint its API token
+
+On the agent's row, create a token (choose `read` or `read` + `write`).
+Copy it immediately — it's shown exactly once. The token acts *as the agent*:
+every task it moves and comment it writes is attributed to the agent member.
+
+## 3. Point your agent at the board
+
+Any agent that can make HTTP calls works. The loop below lists the agent's
+assigned tasks, moves one to In Progress, and reports back with a comment:
+
+```js
+// agent-loop.mjs — run with: KB_TOKEN=kb_... KB_URL=https://your-instance node agent-loop.mjs
+const API = `${process.env.KB_URL ?? "https://your-instance"}/api/v1`;
+const TOKEN = process.env.KB_TOKEN;
+const AGENT_NAME = process.env.KB_AGENT_NAME; // the name you gave it in Settings → Members
+
+async function call(method, path, body) {
+  const res = await fetch(`${API}${path}`, {
+    method,
+    headers: {
+      authorization: `Bearer ${TOKEN}`,
+      ...(body && { "content-type": "application/json" }),
+    },
+    ...(body && { body: JSON.stringify(body) }),
+  });
+  if (!res.ok) throw new Error(`${method} ${path} -> ${res.status} ${await res.text()}`);
+  return res.json();
+}
+
+// 1. Find my own member id — there's no "me" endpoint, so match by name.
+const { members } = await call("GET", "/members");
+const me = members.find((m) => m.kind === "agent" && m.name === AGENT_NAME);
+if (!me) throw new Error(`No agent member named "${AGENT_NAME}"`);
+
+// 2. List my open (not-yet-completed) tasks.
+const { tasks } = await call("GET", `/tasks?assigneeId=${me.id}&hideCompleted=true&limit=10`);
+if (tasks.length === 0) {
+  console.log("Nothing assigned right now.");
+  process.exit(0);
+}
+
+// 3. Pick the first one and move it to "In Progress".
+const { stages } = await call("GET", "/stages");
+const inProgress = stages.find((s) => s.name === "In Progress");
+const task = tasks[0];
+await call("POST", `/tasks/${task.id}/move`, { kanbanStageId: inProgress.id });
+console.log(`Moved "${task.name}" to ${inProgress.name}`);
+
+// 4. Report back in prose — the Agent Member voice.
+await call("POST", `/tasks/${task.id}/comments`, {
+  body: "Picked this up — starting now.",
+});
+console.log("Commented. Anyone with the board open sees it move, live.");
+```
+
+Adapt the endpoints to your workflow — the full surface (filters, subtasks,
+projects, tags) is in the [API reference](/docs/api). If you use an LLM agent
+framework, hand it the OpenAPI spec at `/openapi.json` and the token; that is
+usually all the integration you need.
+
+## Limits & notes
+
+- Agents are free members. Default cap: 5 per workspace (self-host:
+  `AGENT_MEMBERS_MAX`).
+- Agent tokens follow the same rules as personal tokens: scopes, revocation,
+  rate limits.
+- Everything an agent does emits the same realtime updates humans see — open
+  the board and watch it work.
