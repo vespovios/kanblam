@@ -11,6 +11,7 @@ import { PasswordForm } from "@/components/settings/password-form";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { AsanaImport } from "@/components/settings/asana-import";
 import { ApiTokensSection } from "@/components/settings/api-tokens-section";
+import { AgentMembersSection } from "@/components/settings/agent-members-section";
 import { listApiTokens } from "@/lib/api-tokens/service";
 import { PageRealtimeBridge } from "@/components/realtime/page-realtime-bridge";
 
@@ -41,7 +42,7 @@ export default async function SettingsPage() {
 
   // Only fetch admin-section data if the viewer is actually admin —
   // saves four queries on every member-side render.
-  const [members, pendingInvites, workspace, holidays] = isAdmin
+  const [members, pendingInvites, workspace, holidays, agents] = isAdmin
     ? await Promise.all([
         prisma.user.findMany({
           where: { workspaceId: user.workspaceId },
@@ -71,14 +72,54 @@ export default async function SettingsPage() {
           orderBy: { date: "asc" },
           select: { id: true, name: true, date: true },
         }),
+        prisma.user.findMany({
+          where: { workspaceId: user.workspaceId, kind: "AGENT" },
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            name: true,
+            createdAt: true,
+            apiTokens: {
+              orderBy: { createdAt: "desc" },
+              select: {
+                id: true,
+                name: true,
+                tokenPrefix: true,
+                scopes: true,
+                expiresAt: true,
+                lastUsedAt: true,
+                revokedAt: true,
+                createdAt: true,
+              },
+            },
+          },
+        }),
       ])
-    : [null, null, null, null];
+    : [null, null, null, null, null];
 
   const holidaysSerialized = holidays
     ? holidays.map((h) => ({
         id: h.id,
         name: h.name,
         date: h.date.toISOString().slice(0, 10),
+      }))
+    : [];
+
+  const agentsSerialized = agents
+    ? agents.map((a) => ({
+        id: a.id,
+        name: a.name,
+        createdAt: a.createdAt.toISOString(),
+        apiTokens: a.apiTokens.map((t) => ({
+          id: t.id,
+          name: t.name,
+          tokenPrefix: t.tokenPrefix,
+          scopes: t.scopes,
+          expiresAt: t.expiresAt?.toISOString() ?? null,
+          lastUsedAt: t.lastUsedAt?.toISOString() ?? null,
+          revokedAt: t.revokedAt?.toISOString() ?? null,
+          createdAt: t.createdAt.toISOString(),
+        })),
       }))
     : [];
 
@@ -108,6 +149,7 @@ export default async function SettingsPage() {
           {members && pendingInvites && (
             <TeamList members={members} pendingInvites={pendingInvites} />
           )}
+          <AgentMembersSection initialAgents={agentsSerialized} />
           <WorkingDaysForm initial={workspace.workingDays} />
           <HolidaysSection
             initial={holidaysSerialized}
