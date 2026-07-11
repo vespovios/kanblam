@@ -45,7 +45,7 @@ export default async function TasksPage({ searchParams }: Props) {
     prisma.kanbanStage.findMany({ where: { workspaceId: user.workspaceId }, orderBy: { order: "asc" } }),
     prisma.user.findMany({
       where: { workspaceId: user.workspaceId },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, kind: true },
       orderBy: { name: "asc" },
     }),
     prisma.tag.findMany({

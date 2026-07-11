@@ -17,13 +17,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createProjectFormSchema, type CreateProjectInput } from "@/lib/validators/project";
 import { useReadOnly, READ_ONLY_CONTROL_TITLE } from "@/components/billing/read-only-provider";
 
 interface Props {
   statuses: { id: string; name: string; color: string }[];
-  members: { id: string; name: string | null; email: string }[];
+  members: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" }[];
 }
 
 export function ProjectCreateDialog({ statuses, members }: Props) {
@@ -126,7 +127,10 @@ export function ProjectCreateDialog({ statuses, members }: Props) {
               <SelectContent>
                 <SelectItem value="">None</SelectItem>
                 {members.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>{m.name ?? m.email}</SelectItem>
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.name ?? m.email}
+                    {m.kind === "AGENT" && <Badge variant="outline">Agent</Badge>}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>

@@ -68,6 +68,8 @@ describe("comments over the API", () => {
     expect(listed.comments[0].body).toBe("starting on this");
     expect(listed.comments[0].author.id).toBe(seed.memberId);
     expect(typeof listed.comments[0].createdAt).toBe("string");
+    // author object is whitelisted — id + name only (never email or kind)
+    expect(Object.keys(listed.comments[0].author).sort()).toEqual(["id", "name"]);
   });
 
   it("empty and over-long bodies 422", async () => {

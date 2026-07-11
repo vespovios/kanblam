@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { CircleIcon, CircleCheckIcon, CircleXIcon } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { TaskPriorityBadge } from "./task-priority-badge";
 import { TaskStageBadge } from "./task-stage-badge";
 import { TaskGlyphs } from "./task-glyphs";
@@ -36,7 +37,7 @@ export interface TaskRow {
   name: string;
   description: string | null;
   project: { id: string; code: string; name: string };
-  assignee: { id: string; name: string | null; email: string } | null;
+  assignee: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" } | null;
   priority: { id: string; name: string; color: string };
   kanbanStage: { id: string; name: string; color: string; isTerminal: boolean };
   tags: { id: string; name: string; color: string }[];
@@ -54,7 +55,7 @@ interface Props {
   tasks: TaskRow[];
   priorities: { id: string; name: string }[];
   kanbanStages: StageOption[];
-  members: { id: string; name: string | null; email: string }[];
+  members: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" }[];
   projects: { id: string; name: string; code: string }[];
   /** All workspace tags + usage count, threaded to drawer + create dialog. */
   allTags: (TagLite & { _count: { tasks: number } })[];
@@ -209,7 +210,12 @@ export function TasksTable({ tasks, priorities, kanbanStages, members, projects,
                   </div>
                 )}
               </TableCell>
-              <TableCell className="text-sm">{t.assignee?.name ?? t.assignee?.email ?? "—"}</TableCell>
+              <TableCell className="text-sm">
+                {t.assignee?.name ?? t.assignee?.email ?? "—"}
+                {t.assignee?.kind === "AGENT" && (
+                  <Badge variant="outline" className="ml-1.5">Agent</Badge>
+                )}
+              </TableCell>
               <TableCell><TaskPriorityBadge name={t.priority.name} color={t.priority.color} /></TableCell>
               <TableCell><TaskStageBadge name={stage.name} color={stage.color} /></TableCell>
               <TableCell>

@@ -50,7 +50,7 @@ export default async function KanbanPage({ searchParams }: Props) {
       }),
       prisma.user.findMany({
         where: { workspaceId: user.workspaceId },
-        select: { id: true, name: true, email: true },
+        select: { id: true, name: true, email: true, kind: true },
         orderBy: { name: "asc" },
       }),
       prisma.tag.findMany({
@@ -68,7 +68,7 @@ export default async function KanbanPage({ searchParams }: Props) {
     name: t.name,
     project: { id: t.project.id, code: t.project.code, name: t.project.name },
     assignee: t.assignee
-      ? { id: t.assignee.id, name: t.assignee.name, email: t.assignee.email }
+      ? { id: t.assignee.id, name: t.assignee.name, email: t.assignee.email, kind: t.assignee.kind }
       : null,
     priority: { id: t.priority.id, name: t.priority.name, color: t.priority.color },
     tags: t.tags,

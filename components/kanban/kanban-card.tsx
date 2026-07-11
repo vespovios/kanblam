@@ -10,7 +10,7 @@ export interface KanbanTaskCard {
   id: string;
   name: string;
   project: { id: string; code: string; name: string };
-  assignee: { id: string; name: string | null; email: string } | null;
+  assignee: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" } | null;
   priority: { id: string; name: string; color: string };
   tags: { id: string; name: string; color: string }[];
   dueDate: string | null;

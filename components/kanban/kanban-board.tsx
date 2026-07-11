@@ -58,7 +58,7 @@ interface Props {
   stages: KanbanStage[];
   priorities: { id: string; name: string }[];
   kanbanStages: { id: string; name: string }[];
-  members: { id: string; name: string | null; email: string }[];
+  members: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" }[];
   projects: { id: string; name: string; code: string }[];
   /** All workspace tags + usage count, threaded to drawer + create dialog. */
   allTags: (TagLite & { _count: { tasks: number } })[];

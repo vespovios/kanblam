@@ -12,6 +12,7 @@ import { ProjectKanbanTab } from "@/components/kanban/project-kanban-tab";
 import { ProjectEisenhowerTab } from "@/components/eisenhower/project-eisenhower-tab";
 import { ProjectOverviewTab } from "@/components/projects/project-overview-tab";
 import { PageRealtimeBridge } from "@/components/realtime/page-realtime-bridge";
+import { Badge } from "@/components/ui/badge";
 import type { LaneAxis } from "@/lib/kanban/lanes";
 
 interface Props {
@@ -46,7 +47,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
     prisma.status.findMany({ where: { workspaceId: user.workspaceId }, orderBy: { order: "asc" } }),
     prisma.user.findMany({
       where: { workspaceId: user.workspaceId },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, kind: true },
       orderBy: { name: "asc" },
     }),
     prisma.tag.findMany({
@@ -75,7 +76,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
                 isTerminal: true,
               },
             },
-            assignee: { select: { id: true, name: true, email: true } },
+            assignee: { select: { id: true, name: true, email: true, kind: true } },
           },
         })
       : [];
@@ -108,7 +109,12 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
             <ProjectStatusBadge status={project.status} />
             {project.clientName && <span>Client: {project.clientName}</span>}
             {project.projectLead && (
-              <span>Lead: {project.projectLead.name ?? project.projectLead.email}</span>
+              <span>
+                Lead: {project.projectLead.name ?? project.projectLead.email}
+                {project.projectLead.kind === "AGENT" && (
+                  <Badge variant="outline" className="ml-1.5">Agent</Badge>
+                )}
+              </span>
             )}
           </div>
         </div>

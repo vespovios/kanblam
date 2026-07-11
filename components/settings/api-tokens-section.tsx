@@ -56,21 +56,26 @@ export function ApiTokensSection({ initialTokens }: Props) {
     e.preventDefault();
     if (!name.trim() || scopes.length === 0) return;
     setSubmitting(true);
-    const res = await fetch("/api/settings/api-tokens", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim(), scopes }),
-    });
-    setSubmitting(false);
-    const body = await res.json().catch(() => null);
-    if (!res.ok) {
-      toast.error(body?.error ?? "Failed to create token");
-      return;
+    try {
+      const res = await fetch("/api/settings/api-tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim(), scopes }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body?.token || !body?.record?.id) {
+        toast.error(body?.error ?? "Failed to create token");
+        return;
+      }
+      setFreshToken({ raw: body.token, id: body.record.id });
+      setName("");
+      setScopes(["read"]);
+      await refresh();
+    } catch {
+      toast.error("Network error — try again.");
+    } finally {
+      setSubmitting(false);
     }
-    setFreshToken({ raw: body.token, id: body.record.id });
-    setName("");
-    setScopes(["read"]);
-    await refresh();
   }
 
   async function onRevoke(id: string) {
@@ -79,16 +84,20 @@ export function ApiTokensSection({ initialTokens }: Props) {
       return;
     }
     setConfirmRevoke(null);
-    const res = await fetch(`/api/settings/api-tokens/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      toast.error("Failed to revoke token");
-      return;
+    try {
+      const res = await fetch(`/api/settings/api-tokens/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        toast.error("Failed to revoke token");
+        return;
+      }
+      toast.success("Token revoked");
+      // If the revoked token is the one in the show-once box, the box is
+      // now displaying a dead secret — clear it.
+      setFreshToken((prev) => (prev?.id === id ? null : prev));
+      await refresh();
+    } catch {
+      toast.error("Network error — try again.");
     }
-    toast.success("Token revoked");
-    // If the revoked token is the one in the show-once box, the box is
-    // now displaying a dead secret — clear it.
-    setFreshToken((prev) => (prev?.id === id ? null : prev));
-    await refresh();
   }
 
   async function copyFreshToken() {

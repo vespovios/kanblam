@@ -12,7 +12,7 @@ export default async function ProjectsPage() {
     prisma.status.findMany({ where: { workspaceId: user.workspaceId }, orderBy: { order: "asc" } }),
     prisma.user.findMany({
       where: { workspaceId: user.workspaceId },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, kind: true },
       orderBy: { name: "asc" },
     }),
   ]);

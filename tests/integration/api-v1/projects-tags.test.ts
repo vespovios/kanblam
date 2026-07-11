@@ -40,7 +40,10 @@ afterAll(async () => {
 
 describe("projects", () => {
   it("creates with a default status, lists with taskCount, round-trips detail", async () => {
-    const res = await postProject(req("POST", P, { name: "Flight Ops", code: "FLT" }), noId);
+    const res = await postProject(
+      req("POST", P, { name: "Flight Ops", code: "FLT", projectLeadId: seed.adminId }),
+      noId,
+    );
     expect(res.status).toBe(201);
     const { project } = await res.json();
     expect(project.status.name).toBe("Not Started"); // lowest-order status
@@ -53,6 +56,8 @@ describe("projects", () => {
     const listed = await (await listProjects(req("GET", P), noId)).json();
     const flt = listed.projects.find((p: { code: string }) => p.code === "FLT");
     expect(flt.taskCount).toBe(1);
+    // projectLead object is whitelisted — id + name only (never email or kind)
+    expect(Object.keys(flt.projectLead).sort()).toEqual(["id", "name"]);
 
     const detail = await (await getProject(req("GET", `${P}/${project.id}`), withId(project.id))).json();
     expect(detail.project.name).toBe("Flight Ops");

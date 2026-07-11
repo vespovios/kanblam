@@ -104,7 +104,9 @@ export function serializeComment(c: {
   return {
     id: c.id,
     body: c.body,
-    author: c.author, // null = author account was deleted
+    // Whitelisted (id + name only) — internal includes may carry more fields
+    // (e.g. kind); null = author account was deleted.
+    author: c.author ? { id: c.author.id, name: c.author.name } : null,
     createdAt: c.createdAt.toISOString(),
   };
 }
