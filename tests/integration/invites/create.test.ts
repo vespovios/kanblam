@@ -50,4 +50,15 @@ describe("createInvite", () => {
       })
     ).rejects.toThrow(/already/i);
   });
+
+  it("rejects the reserved agents.internal domain", async () => {
+    await expect(
+      createInvite({
+        workspaceId,
+        invitedById: adminId,
+        email: "bot@agents.internal",
+        appUrl: "https://tasker.test",
+      })
+    ).rejects.toThrow(/reserved/i);
+  });
 });

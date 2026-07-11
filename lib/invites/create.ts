@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { generateToken, hashToken } from "@/lib/invites/token";
 import { sendMail } from "@/lib/email/send";
 import { inviteEmail } from "@/lib/email/templates";
+import { AGENT_EMAIL_DOMAIN } from "@/lib/validators/agent-member";
 
 const INVITE_TTL_DAYS = 7;
 
@@ -21,6 +22,10 @@ export async function createInvite({
   sendEmail: shouldSendEmail = false,
 }: CreateInviteInput) {
   const normalized = email.toLowerCase().trim();
+
+  if (normalized.endsWith(`@${AGENT_EMAIL_DOMAIN}`)) {
+    throw new Error("This address is reserved.");
+  }
 
   const existingUser = await prisma.user.findFirst({
     where: { workspaceId, email: normalized },
