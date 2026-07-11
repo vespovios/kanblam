@@ -1,0 +1,75 @@
+# Eisenhower matrix
+
+The Eisenhower matrix is a four-quadrant view sorting tasks by two
+flags: **important** and **urgent**.
+
+![The Eisenhower matrix with Stratos-1 tasks distributed across the Do, Schedule, Delegate, and Eliminate quadrants](/images/docs/eisenhower.png)
+
+## The four quadrants
+
+|  | Urgent | Not urgent |
+|---|---|---|
+| **Important** | **Do** — handle now | **Schedule** — plan for it |
+| **Not important** | **Delegate** — to someone else | **Eliminate** — should you really be doing this? |
+
+The point isn't moralism. It's that "important" and "urgent" are
+*different* — and most people conflate them. Time spent in **Schedule**
+(important, not urgent) is the time that compounds. Time spent in
+**Delegate** and **Eliminate** is the time you should be reclaiming.
+
+A concrete read of the demo board: *"Rent helium cylinder"* sits in
+**Do** — the launch literally can't happen without it and the window
+is days away. *"Write telemetry firmware"* is **Schedule** — mission
+critical, but there are weeks to do it properly. *"Data SIMs for
+chase phones"* is **Delegate** — someone has to, it needn't be you.
+And *"Integrate camera module"* lives in **Eliminate** territory:
+nice to have, quietly optional.
+
+## Setting the flags
+
+Each task has two checkboxes: **Important** and **Urgent**. Set them
+in the task drawer (open any card to find them) or via Quick Add with
+the `!important` and `!urgent` tokens:
+
+```
+Migrate analytics pipeline !important !urgent
+```
+
+That lands in **Do** (Q1) immediately.
+
+## Moving tasks across quadrants
+
+Drag a card from one quadrant to another — KanBlam flips the
+underlying flags automatically. So "I changed my mind, this isn't
+urgent anymore" is one drag.
+
+**Keyboard:** tab to a card's grip → `Space` to pick up → arrow keys
+nudge the card → `Space` drops on the quadrant under it.
+
+Click anywhere on the card (other than the grip) to open it for full
+editing.
+
+## How Eisenhower interacts with Kanban
+
+The two views show the **same tasks** filtered by different axes.
+A task in Q1 (Important + Urgent) might also be sitting in your
+Kanban "In Progress" column. Moving it on the Kanban doesn't change
+its Eisenhower quadrant; moving it on Eisenhower doesn't change its
+Kanban stage. Two independent dimensions.
+
+## A weekly quadrant review
+
+1. Open the matrix with no filters. If **Do** holds more than five
+   tasks, some of them are lying — demote the pretenders.
+2. Pick two **Schedule** tasks and give them start dates this week.
+   Q2 work never becomes urgent *because* you did it early.
+3. For each **Delegate** task, either assign it to someone or admit
+   it's actually **Eliminate**.
+4. Close the matrix and go do the top of **Do**.
+
+## Where to next
+
+- [DayDash](/docs/daydash) — your Q1 tasks surface there every morning
+- [Kanban board](/docs/kanban) — the same tasks by stage
+- [Recurring tasks](/docs/recurring) — recurring instances inherit
+  the parent template's quadrant flags

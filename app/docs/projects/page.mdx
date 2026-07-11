@@ -1,0 +1,76 @@
+# Projects
+
+A project groups the tasks behind one deliverable — a client
+engagement, a product release, a balloon launch. Every task belongs
+to exactly one project.
+
+## The Projects list
+
+The **Projects** tab shows every project with its code, status, task
+progress and dates:
+
+![The Projects list showing the four Stratos-1 mission projects with statuses and progress bars](/images/docs/projects.png)
+
+- **Code** — a short unique prefix like `PAY` or `FLT`. It shows on
+  task rows and cards everywhere, and it's how you target a project
+  in Quick Add: `[PAY]`.
+- **Status** — Not Started, In Progress, On Hold, Delayed, Completed
+  or Cancelled. Status is *your judgement* of the project; it isn't
+  derived from tasks. A project can be 90% complete and still
+  Delayed — those say different things.
+- **Progress** — this one *is* derived: completion across the
+  project's tasks.
+- **Start / end dates**, an optional **project lead**, and an
+  optional **client name** for consultancy-shaped work.
+
+## Inside a project
+
+Click a project to open it. The detail page has four sub-tabs:
+
+![The Flight Ops & Launch project detail with overview stats and per-stage task breakdown](/images/docs/project-detail.png)
+
+- **Overview** — progress, stage breakdown, and date-range health at
+  a glance.
+- **Tasks** — the tasks table scoped to this project. **+ New task**
+  here pre-fills the project field.
+- **Kanban** — a board of just this project's tasks.
+- **Eisenhower** — this project's tasks by quadrant.
+
+The scoped Kanban and Eisenhower tabs are the same components as the
+global views — same drag-and-drop, same keyboard support — just
+pre-filtered.
+
+## Projects vs the global filter
+
+There are two ways to "look at one project", and they're both useful:
+
+- **Project detail page** — when you're heads-down *in* a project.
+- **Global Project filter chip** — when you want one project's tasks
+  *in context*: on the calendar next to your other deadlines, or on
+  DayDash. The chip cascades across every view until you reset it.
+
+## Working with projects
+
+- **Create** — Projects → **+ New project**. Name, code and status
+  are required; the rest is optional.
+- **Edit** — pencil icon on the project row or detail page. Codes can
+  be changed later; existing tasks follow the project, not the code
+  string.
+- **Move a task between projects** — open the task, change its
+  Project field. Stage, dates, tags and progress all survive the move.
+- **Complete** — set status to Completed. Completed projects stay
+  visible (project archiving is on the roadmap).
+
+## A structure that works
+
+For a mission-sized effort, one project per *workstream that finishes
+together* beats one giant project. The demo workspace runs four:
+`FEAS` (feasibility — Completed), `PAY` (payload build), `FLT`
+(flight ops) and `REC` (recovery). Cross-cutting themes — `budget`,
+`testing`, `outreach` — are [tags](/docs/tasks#tags), not projects,
+so they can span all four.
+
+## Where to next
+
+- [Tasks, subtasks & tags](/docs/tasks) — what lives inside a project
+- [Kanban board](/docs/kanban) — projects as swim lanes

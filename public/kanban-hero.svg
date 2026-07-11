@@ -1,0 +1,292 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+  <!-- Soft Slate palette mockup of a KanBlam kanban board. Stylised, not -->
+  <!-- pixel-perfect to the running app; it just has to feel right on the  -->
+  <!-- landing hero. -->
+
+  <defs>
+    <filter id="cardShadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#2a3650" flood-opacity="0.08"/>
+    </filter>
+    <filter id="liftShadow" x="-4%" y="-4%" width="108%" height="116%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#2a3650" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- canvas -->
+  <rect width="1200" height="675" fill="#ffffff"/>
+
+  <!-- app shell top band (Soft Slate header) -->
+  <rect width="1200" height="56" fill="#edf0f4"/>
+  <rect y="55" width="1200" height="1" fill="#dde2e9"/>
+
+  <!-- brand pill -->
+  <g transform="translate(24,12)">
+    <rect width="118" height="32" rx="8" fill="#ffffff" stroke="#dde2e9"/>
+    <text x="14" y="21" font-size="14" font-weight="800" fill="#2a3650" letter-spacing="-0.4">KanBlam<tspan fill="#4f6fa8">!</tspan></text>
+  </g>
+
+  <!-- filter chips -->
+  <g transform="translate(170,18)" font-size="12" fill="#717a8a">
+    <rect width="92" height="22" rx="11" fill="#ffffff" stroke="#dde2e9"/>
+    <text x="14" y="15">All projects</text>
+    <text x="74" y="15" fill="#717a8a">▾</text>
+    <g transform="translate(104,0)">
+      <rect width="80" height="22" rx="11" fill="#ffffff" stroke="#dde2e9"/>
+      <text x="14" y="15">Assignee</text>
+      <text x="62" y="15">▾</text>
+    </g>
+    <g transform="translate(196,0)">
+      <rect width="60" height="22" rx="11" fill="#ffffff" stroke="#dde2e9"/>
+      <text x="14" y="15">Tags</text>
+      <text x="42" y="15">▾</text>
+    </g>
+  </g>
+
+  <!-- active tab indicator -->
+  <g transform="translate(24,56)" font-size="13" font-weight="600">
+    <text x="0" y="32" fill="#717a8a">DayDash</text>
+    <text x="76" y="32" fill="#717a8a">Tasks</text>
+    <text x="124" y="32" fill="#4f6fa8">Kanban</text>
+    <rect x="120" y="44" width="50" height="3" rx="1.5" fill="#4f6fa8"/>
+    <text x="188" y="32" fill="#717a8a">Calendar</text>
+    <text x="252" y="32" fill="#717a8a">Eisenhower</text>
+  </g>
+
+  <!-- right-side avatar dot -->
+  <circle cx="1158" cy="28" r="14" fill="#4f6fa8"/>
+  <text x="1158" y="32" text-anchor="middle" font-size="11" font-weight="700" fill="#ffffff">PP</text>
+
+  <!-- =========== columns =========== -->
+  <!-- Column positions: 4 cols × 270w, 24 gap, starting at x=24, top=124 -->
+
+  <!-- BACKLOG -->
+  <g transform="translate(24,124)">
+    <rect width="270" height="535" rx="12" fill="#f4f6f9" stroke="#e1e5eb"/>
+    <g transform="translate(18,18)">
+      <text font-size="13" font-weight="700" fill="#2a3650" letter-spacing="0.4">BACKLOG</text>
+      <g transform="translate(78,-12)">
+        <rect width="26" height="20" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+        <text x="13" y="14" text-anchor="middle" font-size="11" font-weight="600" fill="#717a8a">3</text>
+      </g>
+    </g>
+
+    <!-- card 1 -->
+    <g transform="translate(14,52)" filter="url(#cardShadow)">
+      <rect width="242" height="92" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+      <rect x="0" y="0" width="4" height="92" rx="2" fill="#8aa8c8"/>
+      <text x="16" y="24" font-size="13" font-weight="600" fill="#2a3650">Q3 product roadmap</text>
+      <text x="16" y="44" font-size="11" fill="#717a8a">draft scope &amp; key bets</text>
+      <g transform="translate(16,58)">
+        <rect width="44" height="18" rx="4" fill="#edf0f4"/>
+        <text x="22" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#4f6fa8">KB-12</text>
+      </g>
+      <circle cx="74" cy="67" r="4" fill="#d4a45a"/>
+      <text x="84" y="71" font-size="10.5" fill="#717a8a">Medium</text>
+      <text x="226" y="71" text-anchor="end" font-size="10.5" fill="#717a8a">Jun 02</text>
+    </g>
+
+    <!-- card 2 -->
+    <g transform="translate(14,160)" filter="url(#cardShadow)">
+      <rect width="242" height="108" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+      <rect x="0" y="0" width="4" height="108" rx="2" fill="#8aa8c8"/>
+      <text x="16" y="24" font-size="13" font-weight="600" fill="#2a3650">Audit user feedback</text>
+      <text x="16" y="42" font-size="13" font-weight="600" fill="#2a3650">themes</text>
+      <g transform="translate(16,56)">
+        <rect width="50" height="16" rx="3" fill="#f0e7d4"/>
+        <text x="25" y="12" text-anchor="middle" font-size="9.5" font-weight="600" fill="#9a7a3a">research</text>
+      </g>
+      <g transform="translate(16,80)">
+        <rect width="44" height="18" rx="4" fill="#edf0f4"/>
+        <text x="22" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#4f6fa8">KB-09</text>
+      </g>
+      <circle cx="74" cy="89" r="4" fill="#d4a45a"/>
+      <text x="84" y="93" font-size="10.5" fill="#717a8a">Medium</text>
+    </g>
+
+    <!-- card 3 - overdue -->
+    <g transform="translate(14,284)" filter="url(#cardShadow)">
+      <rect width="242" height="92" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+      <rect x="0" y="0" width="4" height="92" rx="2" fill="#d4655a"/>
+      <text x="16" y="24" font-size="13" font-weight="600" fill="#2a3650">Renew SSL certs</text>
+      <text x="16" y="44" font-size="11" fill="#717a8a">production fleet</text>
+      <g transform="translate(16,58)">
+        <rect width="62" height="18" rx="4" fill="#edf0f4"/>
+        <text x="31" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#4f6fa8">INFRA-04</text>
+      </g>
+      <circle cx="92" cy="67" r="4" fill="#d4655a"/>
+      <text x="102" y="71" font-size="10.5" fill="#717a8a">High</text>
+      <g transform="translate(184,57)">
+        <rect width="46" height="18" rx="4" fill="#fbe6e3"/>
+        <text x="23" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#a8463c">Overdue</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- IN PROGRESS -->
+  <g transform="translate(318,124)">
+    <rect width="270" height="535" rx="12" fill="#f4f6f9" stroke="#e1e5eb"/>
+    <g transform="translate(18,18)">
+      <text font-size="13" font-weight="700" fill="#2a3650" letter-spacing="0.4">IN PROGRESS</text>
+      <g transform="translate(110,-12)">
+        <rect width="26" height="20" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+        <text x="13" y="14" text-anchor="middle" font-size="11" font-weight="600" fill="#717a8a">2</text>
+      </g>
+    </g>
+
+    <!-- card 4 - lifted (being dragged) -->
+    <g transform="translate(14,52) rotate(-1)" filter="url(#liftShadow)">
+      <rect width="242" height="116" rx="10" fill="#ffffff" stroke="#4f6fa8" stroke-width="1.5"/>
+      <rect x="0" y="0" width="4" height="116" rx="2" fill="#d4a45a"/>
+      <text x="16" y="24" font-size="13" font-weight="600" fill="#2a3650">Migrate analytics</text>
+      <text x="16" y="42" font-size="13" font-weight="600" fill="#2a3650">pipeline to v2</text>
+      <g transform="translate(16,56)">
+        <rect width="56" height="16" rx="3" fill="#dce8f4"/>
+        <text x="28" y="12" text-anchor="middle" font-size="9.5" font-weight="600" fill="#3d5d8a">data</text>
+      </g>
+      <g transform="translate(16,82)">
+        <rect width="56" height="18" rx="4" fill="#edf0f4"/>
+        <text x="28" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#4f6fa8">DATA-21</text>
+      </g>
+      <circle cx="86" cy="91" r="4" fill="#d4a45a"/>
+      <text x="96" y="95" font-size="10.5" fill="#717a8a">Medium</text>
+      <g transform="translate(180,82)">
+        <rect width="50" height="18" rx="4" fill="#e5f1ff"/>
+        <text x="25" y="13" text-anchor="middle" font-size="10" font-weight="700" fill="#3d5d8a">Today</text>
+      </g>
+    </g>
+
+    <!-- card 5 -->
+    <g transform="translate(14,184)" filter="url(#cardShadow)">
+      <rect width="242" height="108" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+      <rect x="0" y="0" width="4" height="108" rx="2" fill="#d4a45a"/>
+      <text x="16" y="24" font-size="13" font-weight="600" fill="#2a3650">Customer onboarding</text>
+      <text x="16" y="42" font-size="13" font-weight="600" fill="#2a3650">flow rewrite</text>
+      <text x="16" y="60" font-size="11" fill="#717a8a">3 of 5 subtasks done</text>
+      <g transform="translate(16,72)">
+        <rect width="210" height="6" rx="3" fill="#edf0f4"/>
+        <rect width="126" height="6" rx="3" fill="#4f6fa8"/>
+      </g>
+      <g transform="translate(16,86)">
+        <rect width="44" height="18" rx="4" fill="#edf0f4"/>
+        <text x="22" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#4f6fa8">KB-15</text>
+      </g>
+      <circle cx="74" cy="95" r="4" fill="#d4a45a"/>
+      <text x="84" y="99" font-size="10.5" fill="#717a8a">Medium</text>
+      <g transform="translate(200,82)">
+        <circle cx="14" cy="14" r="13" fill="#7e9bc9"/>
+        <text x="14" y="18" text-anchor="middle" font-size="10" font-weight="700" fill="#ffffff">TS</text>
+      </g>
+    </g>
+
+    <!-- placeholder drop slot -->
+    <g transform="translate(14,308)">
+      <rect width="242" height="76" rx="10" fill="none" stroke="#c8d2df" stroke-width="1.5" stroke-dasharray="5 5"/>
+      <text x="121" y="44" text-anchor="middle" font-size="11" fill="#9aa6b8">Drop here</text>
+    </g>
+  </g>
+
+  <!-- IN REVIEW -->
+  <g transform="translate(612,124)">
+    <rect width="270" height="535" rx="12" fill="#f4f6f9" stroke="#e1e5eb"/>
+    <g transform="translate(18,18)">
+      <text font-size="13" font-weight="700" fill="#2a3650" letter-spacing="0.4">IN REVIEW</text>
+      <g transform="translate(86,-12)">
+        <rect width="26" height="20" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+        <text x="13" y="14" text-anchor="middle" font-size="11" font-weight="600" fill="#717a8a">2</text>
+      </g>
+    </g>
+
+    <!-- card 6 -->
+    <g transform="translate(14,52)" filter="url(#cardShadow)">
+      <rect width="242" height="92" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+      <rect x="0" y="0" width="4" height="92" rx="2" fill="#8aa8c8"/>
+      <text x="16" y="24" font-size="13" font-weight="600" fill="#2a3650">Pricing page copy</text>
+      <text x="16" y="44" font-size="11" fill="#717a8a">v2 with comparison table</text>
+      <g transform="translate(16,58)">
+        <rect width="58" height="16" rx="3" fill="#e8d4d4"/>
+        <text x="29" y="12" text-anchor="middle" font-size="9.5" font-weight="600" fill="#8a4040">marketing</text>
+      </g>
+      <g transform="translate(78,57)">
+        <rect width="46" height="18" rx="4" fill="#edf0f4"/>
+        <text x="23" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#4f6fa8">MKT-03</text>
+      </g>
+      <circle cx="138" cy="67" r="4" fill="#8aa8c8"/>
+      <text x="148" y="71" font-size="10.5" fill="#717a8a">Low</text>
+    </g>
+
+    <!-- card 7 -->
+    <g transform="translate(14,160)" filter="url(#cardShadow)">
+      <rect width="242" height="92" rx="10" fill="#ffffff" stroke="#e1e5eb"/>
+      <rect x="0" y="0" width="4" height="92" rx="2" fill="#d4a45a"/>
+      <text x="16" y="24" font-size="13" font-weight="600" fill="#2a3650">Refactor auth</text>
+      <text x="16" y="42" font-size="13" font-weight="600" fill="#2a3650">middleware</text>
+      <g transform="translate(16,58)">
+        <rect width="44" height="18" rx="4" fill="#edf0f4"/>
+        <text x="22" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#4f6fa8">KB-22</text>
+      </g>
+      <circle cx="74" cy="67" r="4" fill="#d4a45a"/>
+      <text x="84" y="71" font-size="10.5" fill="#717a8a">Medium</text>
+      <text x="226" y="71" text-anchor="end" font-size="10.5" fill="#717a8a">May 22</text>
+    </g>
+  </g>
+
+  <!-- DONE -->
+  <g transform="translate(906,124)">
+    <rect width="270" height="535" rx="12" fill="#eef5ee" stroke="#cee0ce"/>
+    <g transform="translate(18,18)">
+      <text font-size="13" font-weight="700" fill="#4a6b4a" letter-spacing="0.4">DONE</text>
+      <g transform="translate(46,-12)">
+        <rect width="26" height="20" rx="10" fill="#ffffff" stroke="#cee0ce"/>
+        <text x="13" y="14" text-anchor="middle" font-size="11" font-weight="600" fill="#4a6b4a">3</text>
+      </g>
+    </g>
+
+    <!-- card 8 -->
+    <g transform="translate(14,52)" opacity="0.78">
+      <rect width="242" height="80" rx="10" fill="#ffffff" stroke="#cee0ce"/>
+      <rect x="0" y="0" width="4" height="80" rx="2" fill="#7aac7a"/>
+      <text x="16" y="22" font-size="12.5" font-weight="500" fill="#5a6f5a" text-decoration="line-through">Set up Cloudflare Tunnel</text>
+      <g transform="translate(16,32)">
+        <rect width="62" height="18" rx="4" fill="#eaf2ea"/>
+        <text x="31" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#5a8a5a">INFRA-02</text>
+      </g>
+      <g transform="translate(86,32)">
+        <circle cx="9" cy="9" r="9" fill="#7aac7a"/>
+        <path d="M5 9 L8 12 L13 6" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="226" y="46" text-anchor="end" font-size="10.5" fill="#7a8a7a">May 16</text>
+    </g>
+
+    <!-- card 9 -->
+    <g transform="translate(14,148)" opacity="0.78">
+      <rect width="242" height="80" rx="10" fill="#ffffff" stroke="#cee0ce"/>
+      <rect x="0" y="0" width="4" height="80" rx="2" fill="#7aac7a"/>
+      <text x="16" y="22" font-size="12.5" font-weight="500" fill="#5a6f5a" text-decoration="line-through">v0.5 release notes</text>
+      <g transform="translate(16,32)">
+        <rect width="44" height="18" rx="4" fill="#eaf2ea"/>
+        <text x="22" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#5a8a5a">KB-19</text>
+      </g>
+      <g transform="translate(68,32)">
+        <circle cx="9" cy="9" r="9" fill="#7aac7a"/>
+        <path d="M5 9 L8 12 L13 6" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="226" y="46" text-anchor="end" font-size="10.5" fill="#7a8a7a">May 14</text>
+    </g>
+
+    <!-- card 10 -->
+    <g transform="translate(14,244)" opacity="0.78">
+      <rect width="242" height="80" rx="10" fill="#ffffff" stroke="#cee0ce"/>
+      <rect x="0" y="0" width="4" height="80" rx="2" fill="#7aac7a"/>
+      <text x="16" y="22" font-size="12.5" font-weight="500" fill="#5a6f5a" text-decoration="line-through">Deploy v0.4 to staging</text>
+      <g transform="translate(16,32)">
+        <rect width="44" height="18" rx="4" fill="#eaf2ea"/>
+        <text x="22" y="13" text-anchor="middle" font-size="10" font-weight="600" fill="#5a8a5a">KB-18</text>
+      </g>
+      <g transform="translate(68,32)">
+        <circle cx="9" cy="9" r="9" fill="#7aac7a"/>
+        <path d="M5 9 L8 12 L13 6" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+      <text x="226" y="46" text-anchor="end" font-size="10.5" fill="#7a8a7a">May 12</text>
+    </g>
+  </g>
+</svg>

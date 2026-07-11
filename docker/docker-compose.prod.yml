@@ -1,0 +1,229 @@
+# Production stack for KanBlam on ZimaOS.
+# Run from the repo root:
+#   docker compose -f docker/docker-compose.prod.yml --env-file .env.prod --profile tunnel up -d --build
+#
+# For a local dry-run on the dev Mac (no cloudflared), drop the --profile flag
+# and create a docker-compose.prod.local.yml override that publishes web:3000.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: tasker
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env.prod}
+      POSTGRES_DB: tasker
+    volumes:
+      - tasker_pg_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tasker -d tasker"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - kanblam_net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  migrator:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: builder
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL must be set in .env.prod}
+      WORKSPACE_NAME: ${WORKSPACE_NAME}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_NAME: ${ADMIN_NAME}
+      SEED_MEMBER_EMAIL: ${SEED_MEMBER_EMAIL:-}
+      SEED_MEMBER_PASSWORD: ${SEED_MEMBER_PASSWORD:-}
+      SEED_MEMBER_NAME: ${SEED_MEMBER_NAME:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - kanblam_net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: runner
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET must be set in .env.prod}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:?NEXTAUTH_URL must be set in .env.prod}
+      APP_URL: ${APP_URL}
+      CRON_SECRET: ${CRON_SECRET:?CRON_SECRET must be set in .env.prod}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_FROM: ${SMTP_FROM}
+      # Inbox that receives /api/waitlist signup notifications. Falls back
+      # to ADMIN_EMAIL inside the route if this is empty.
+      WAITLIST_NOTIFY_TO: ${WAITLIST_NOTIFY_TO:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      # PostHog analytics (public routes only). Leave blank to disable.
+      POSTHOG_KEY: ${POSTHOG_KEY:-}
+      POSTHOG_HOST: ${POSTHOG_HOST:-}
+      # Billing (Polar.sh) — hosted service only. Off by default: every
+      # self-host install and pre-launch hosted deploy leaves these blank, so
+      # billing is a hard no-op (see lib/billing/polar.ts, lib/config/features.ts).
+      BILLING_ENABLED: ${BILLING_ENABLED:-false}
+      POLAR_ENV: ${POLAR_ENV:-}
+      POLAR_ACCESS_TOKEN: ${POLAR_ACCESS_TOKEN:-}
+      POLAR_WEBHOOK_SECRET: ${POLAR_WEBHOOK_SECRET:-}
+      POLAR_PRODUCT_HOSTED_STANDARD_MONTHLY: ${POLAR_PRODUCT_HOSTED_STANDARD_MONTHLY:-}
+      POLAR_PRODUCT_HOSTED_STANDARD_ANNUAL: ${POLAR_PRODUCT_HOSTED_STANDARD_ANNUAL:-}
+      # Feature flags (lib/config/features.ts) — read at runtime from
+      # process.env, so they MUST be enumerated here to reach the container.
+      # (Compose only interpolates the env-file into THIS yaml; it doesn't
+      # forward variables to services automatically.)
+      LANDING_MODE: ${LANDING_MODE:-marketing}
+      WAITLIST_ENABLED: ${WAITLIST_ENABLED:-true}
+      # Instant demo (try.kanblam.com). DEMO_MODE=1 only on the demo stack;
+      # DEMO_URL only on the marketing/prod stack (shows the Demo buttons).
+      DEMO_MODE: ${DEMO_MODE:-}
+      DEMO_TTL_HOURS: ${DEMO_TTL_HOURS:-24}
+      DEMO_URL: ${DEMO_URL:-}
+      NODE_ENV: production
+      # Auth.js v5 rejects sign-in routes in production unless the host is
+      # explicitly trusted. Behind CF Tunnel the Host header is the public
+      # hostname, which Auth.js treats as "untrusted" without this flag.
+      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    networks:
+      - kanblam_net
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.cron-recurring.schedule: "@every 5m"
+      # $$CRON_SECRET (double-dollar) escapes Compose's pre-parse interpolation —
+      # YAML single quotes don't protect from it because Compose substitutes on
+      # the raw YAML string before any parsing. The escape leaves a literal
+      # `$CRON_SECRET` in the label, which ofelia passes to web's shell, which
+      # then expands it at exec time against web's own env. Without the $$,
+      # the secret is baked into the label at deploy time and visible via
+      # `docker inspect web`.
+      ofelia.job-exec.cron-recurring.command: >
+        sh -c 'wget -q --post-data "" --header="Authorization: Bearer $$CRON_SECRET"
+        -O- http://localhost:3000/api/cron/generate-recurring-tasks'
+      # Hourly billing reconcile backstop: replays failed webhook events, applies
+      # clock-driven lifecycle transitions, and converges drift against Polar.
+      # No-op (route 404s) unless BILLING_ENABLED=true. Same $$CRON_SECRET escape
+      # rationale as cron-recurring above.
+      ofelia.job-exec.cron-reconcile-billing.schedule: "@every 1h"
+      ofelia.job-exec.cron-reconcile-billing.command: >
+        sh -c 'wget -q --post-data "" --header="Authorization: Bearer $$CRON_SECRET"
+        -O- http://localhost:3000/api/cron/reconcile-billing'
+      # Nightly demo-tenant reaping (04:15). Only does anything on a
+      # DEMO_MODE=1 deployment (try.kanblam.com) — on prod the route
+      # answers {skipped} without touching data, so the job is safe to
+      # ship in the shared compose file. Same $$CRON_SECRET escape.
+      ofelia.job-exec.cron-demo-cleanup.schedule: "0 15 4 * * *"
+      ofelia.job-exec.cron-demo-cleanup.command: >
+        sh -c 'wget -q --post-data "" --header="Authorization: Bearer $$CRON_SECRET"
+        -O- http://localhost:3000/api/cron/cleanup-demo-workspaces'
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CF_TUNNEL_TOKEN}
+    environment:
+      # Force HTTP/2 instead of the QUIC default. QUIC buffers long-lived
+      # streaming responses through the tunnel which breaks our SSE
+      # connection at /api/realtime — the browser shows a never-settling
+      # EventSource retry loop. HTTP/2 streams pass chunks through promptly
+      # and SSE works. Cost: HTTP/2 is marginally slower than QUIC for
+      # short request/response cycles, irrelevant at our scale.
+      TUNNEL_TRANSPORT_PROTOCOL: http2
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - kanblam_net
+    profiles:
+      - tunnel
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  cron-runner:
+    image: mcuadros/ofelia:latest
+    restart: unless-stopped
+    command: daemon --docker
+    depends_on:
+      web:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - kanblam_net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  pg-backup:
+    build:
+      context: pg-backup
+    restart: unless-stopped
+    user: "70:70"
+    environment:
+      PGHOST: postgres
+      PGUSER: tasker
+      PGDATABASE: tasker
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_HOUR_UTC: ${BACKUP_HOUR_UTC:-03}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-30}
+      HEALTHCHECKS_BACKUP_UUID: ${HEALTHCHECKS_BACKUP_UUID:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ${BACKUP_HOST_PATH:?BACKUP_HOST_PATH must point at the UGREEN NAS mount}:/backups
+    networks:
+      - kanblam_net
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  tasker_pg_prod:
+
+networks:
+  kanblam_net:
+    driver: bridge

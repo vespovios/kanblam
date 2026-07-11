@@ -1,0 +1,64 @@
+# Import from Asana
+
+Moving from Asana? KanBlam can pull an Asana project — tasks,
+completion state, due dates, assignee mapping and subtasks — straight
+into a workspace project. No CSV wrangling.
+
+## Before you start
+
+You need an **Asana personal access token** (PAT):
+
+1. In Asana, open **Settings → Apps → Developer apps → Personal
+   access tokens** (or go to `app.asana.com/0/my-apps`).
+2. Create a token, give it a name like `kanblam-import`, and copy it.
+
+The token is used once, to read your projects. KanBlam doesn't store
+it — it lives in your browser for the duration of the import and is
+gone when you leave the page. You can revoke it in Asana immediately
+after importing.
+
+## The four steps
+
+Head to **Settings → Import from Asana** (admins only):
+
+1. **Paste your token.** KanBlam lists the Asana projects the token
+   can see.
+2. **Pick a project and mapping.** Choose which Asana project to
+   import and which KanBlam project its tasks should land in — an
+   existing one or a new one created on the spot.
+3. **Preview.** KanBlam shows exactly what it's about to create —
+   how many tasks, subtasks, and how completion states map — before
+   touching anything.
+4. **Import.** Tasks are created in one pass. Completed Asana tasks
+   land in the Completed stage; open ones land in Ideas, ready for
+   triage onto your board.
+
+## What maps to what
+
+| Asana | KanBlam |
+|---|---|
+| Task name & notes | Task name & description |
+| Completed state | Completed stage / Ideas stage |
+| Due date | Due date |
+| Subtasks | Subtasks |
+| Assignee (by email match) | Assignee, when a workspace member shares the email |
+
+Asana concepts KanBlam doesn't have (sections, custom fields,
+followers) are skipped rather than mangled — check the preview step
+to see precisely what will come across.
+
+## After the import
+
+- Sweep the imported tasks in the [Tasks table](/docs/tasks): set
+  priorities and Important/Urgent flags, which Asana doesn't have.
+- Tag as you go — `#imported` costs one Quick Add token and makes
+  the batch easy to find later.
+- Large projects import in one go but make many Asana API calls —
+  a couple of thousand tasks can take a minute or two. Leave the tab
+  open.
+
+## Where to next
+
+- [Projects](/docs/projects) — organising what you just imported
+- [Eisenhower matrix](/docs/eisenhower) — triaging the pile by
+  importance and urgency

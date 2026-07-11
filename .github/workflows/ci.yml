@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Prisma client
+        run: npx prisma generate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npx next lint
+
+      # The committed OpenAPI spec must match the zod validators it is
+      # generated from — regenerate and fail on drift.
+      - name: OpenAPI spec is current
+        run: npx tsx scripts/generate-openapi.ts && git diff --exit-code public/openapi.json
+
+      # `next build` needs no database or secrets — all config is read at
+      # request time (see docs/ARCHITECTURE.md → "One image, many
+      # deployments"), which is also what lets the Docker build run clean.
+      - name: Build
+        run: npm run build
+
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: tasker
+          POSTGRES_PASSWORD: tasker
+          POSTGRES_DB: tasker_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U tasker -d tasker_test"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://tasker:tasker@localhost:5432/tasker_test?schema=public
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Migrate test database
+        run: npx prisma migrate deploy
+
+      - name: Unit + integration tests
+        run: npm test
+
+  # Playwright e2e is not wired into CI yet — it needs a running app +
+  # seeded database. Runs locally via `npm run test:e2e`. Follow-up:
+  # candidate for a nightly workflow once the public API lands.

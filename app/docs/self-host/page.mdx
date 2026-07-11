@@ -1,0 +1,85 @@
+# Self-host
+
+KanBlam is open source under the [AGPL-3.0
+license](https://github.com/vespovios/kanblam/blob/main/LICENSE). If you're
+comfortable with Docker, you can run your own copy on a server you
+control. No accounts, no fees, no opinions about who hosts your data.
+
+## The short version
+
+```bash
+git clone https://github.com/vespovios/kanblam.git
+cd kanblam
+cp .env.example .env.prod
+
+# Generate three secrets and fill them in .env.prod:
+echo "NEXTAUTH_SECRET=$(openssl rand -base64 32)"
+echo "CRON_SECRET=$(openssl rand -base64 32)"
+echo "POSTGRES_PASSWORD=$(openssl rand -hex 24)"
+
+# Edit .env.prod — at minimum set:
+#   LANDING_MODE=app
+#   WAITLIST_ENABLED=false
+#   NEXTAUTH_URL=https://your-domain
+#   APP_URL=https://your-domain
+#   DATABASE_URL inlining the POSTGRES_PASSWORD value
+#   ADMIN_EMAIL / ADMIN_PASSWORD for the seed admin account
+chmod 600 .env.prod
+
+docker compose -f docker/docker-compose.prod.yml --env-file .env.prod up -d --build
+```
+
+Browse to your domain, log in with `ADMIN_EMAIL` /
+`ADMIN_PASSWORD`, change the password from Settings, you're live.
+
+## The full guides
+
+The single source of truth for self-hosting is the README and the
+runbook in the repo:
+
+- **[README](https://github.com/vespovios/kanblam#self-host)** — the
+  overview + quick start above, with explanations.
+- **[Deployment runbook](https://github.com/vespovios/kanblam/blob/main/docs/runbooks/deployment.md)**
+  — step-by-step for a fresh Ubuntu VPS including TLS via Cloudflare
+  Tunnel, optional offsite backups, update procedures, restore from
+  backup, rollback, and a failure-mode table.
+
+## Feature flags
+
+The same codebase serves both the public hosted service at
+kanblam.com and self-host deployments. A small set of env vars
+controls hosted-only behaviour — set these in your `.env.prod`:
+
+| Flag | Default (SaaS) | Self-host value | What it does |
+|---|---|---|---|
+| `LANDING_MODE` | `marketing` | `app` | Skip the marketing landing page at `/`; logged-out visitors go to `/login` |
+| `WAITLIST_ENABLED` | `true` | `false` | Disable `/api/waitlist` (returns 404) and hide the waitlist form |
+| `BILLING_ENABLED` | `false` | `false` | Reserved for future Polar.sh billing — has no effect today |
+
+## Updates
+
+```bash
+cd /path/to/kanblam
+git pull
+docker compose -f docker/docker-compose.prod.yml --env-file .env.prod up -d --build
+```
+
+Database migrations run automatically on container start. Your
+Postgres data is preserved on the named volume.
+
+## Distribution channels (coming soon)
+
+KanBlam will eventually be listed on:
+
+- **[PikaPods](https://www.pikapods.com)** — managed hosting for
+  open-source apps, ~$2-3/month
+- **[ZimaOS / CasaOS](https://www.zimaboard.com)** — one-click install
+  on Zima single-board servers and other CasaOS-based home server
+  setups
+
+Both work the same as the Docker Compose path above, just packaged.
+
+## Reporting issues
+
+Self-hosters: bug reports, feature requests, and questions all
+welcome at [github.com/vespovios/kanblam/issues](https://github.com/vespovios/kanblam/issues).

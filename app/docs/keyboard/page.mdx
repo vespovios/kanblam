@@ -1,0 +1,57 @@
+# Keyboard shortcuts
+
+KanBlam is built to be usable without a mouse. The current shortcuts:
+
+## Global
+
+| Shortcut | What it does |
+|---|---|
+| `⌘K` / `Ctrl+K` | Open Quick Add from any page |
+| `Esc` | Close the current modal / drawer / Quick Add |
+| `Tab` / `Shift+Tab` | Move focus through interactive elements |
+
+## Quick Add syntax
+
+Inside the Quick Add palette, the title parser recognises these
+shortcuts in any order:
+
+| Token | Effect |
+|---|---|
+| `[CODE]` | Sets the project — `[WEB]` matches a project with code WEB |
+| `#tag` | Adds the tag (creates it if new) |
+| `@person` | Assigns the task to a workspace member matching the name |
+| `!high` / `!med` / `!low` | Sets priority |
+| `!important` | Sets the Important flag |
+| `!urgent` | Sets the Urgent flag |
+| `due:fri` / `due:tomorrow` / `due:2026-06-15` | Sets due date |
+
+These tokens are stripped from the title text before the task is
+created. So `Fix login [WEB] #auth !high due:fri` creates a task
+named *"Fix login"* under the WEB project, tagged `auth`, priority
+High, due on Friday.
+
+![The Quick Add palette with a token-laden task line parsed live](/images/docs/quick-add.png)
+
+## Drag-and-drop with the keyboard
+
+Every drag-and-drop surface (Kanban, Eisenhower, Calendar, Subtasks)
+supports keyboard control via `@dnd-kit`:
+
+1. **Tab** to a card's drag handle — you'll see the focus ring on it.
+2. **Space** picks the card up. It "lifts" visually.
+3. **Arrow keys** move the card:
+   - Kanban + subtask reorder: arrows move between adjacent cards
+   - Eisenhower + Calendar: arrows nudge the card ~25 pixels at a time
+4. **Space** drops the card on whatever it's over.
+5. **Esc** cancels and returns the card to its original position.
+
+Screen readers (VoiceOver, NVDA) hear `aria-live` announcements at
+each step — "Picked up X. Moved over Y. Released over Y."
+
+## Inside forms
+
+| Shortcut | Where | What |
+|---|---|---|
+| `Enter` | Quick Add | Submit |
+| `Enter` | New subtask input | Add the subtask, keep focus to add another |
+| `Cmd+Enter` (planned) | Task drawer | Save without reaching for the mouse |

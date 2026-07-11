@@ -1,0 +1,80 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+/test-results
+/playwright-report
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files. .env.test is committed on purpose (placeholders only) so both
+# dev environments stay in sync. .env / .env.prod hold real values — never commit.
+.env
+.env.local
+.env.production
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Local files (not source)
+EXCEL-*.xlsb
+~$EXCEL-*.xlsb
+.superpowers/
+
+# Claude Code — ignore per-machine state but keep the shared settings.json
+# (the committed permission allowlist that syncs across dev environments).
+.claude/*
+!.claude/settings.json
+
+# Local DB-dump scratch — real backups live on the VPS, never in git.
+tmp-backups/
+docker/tmp-backups/
+
+# Editor / ad-hoc backup files.
+*.bak
+
+# LLM Council strategy artifacts (local-only, not source)
+council-report-*.html
+council-transcript-*.md
+
+# Business / strategy docs (local-only, not source — keeps the showcase repo clean)
+/business/
+
+/app/generated/prisma
+
+# Production secrets — NEVER commit.
+.env.prod
+.env.prod.*
+
+# Local-only compose overrides (e.g. host port publish for smoke testing).
+docker-compose.*.local.yml
+docker/docker-compose.*.local.yml

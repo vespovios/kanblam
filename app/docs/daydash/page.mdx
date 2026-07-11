@@ -1,0 +1,62 @@
+# DayDash
+
+DayDash is the page you land on after login — one screen that answers
+"what needs me today?" before you open a single other view.
+
+![DayDash showing overdue and due-today lists, stat cards, and the weekly workload chart for the Stratos-1 workspace](/images/docs/daydash.png)
+
+## The stat cards
+
+Four numbers across the top, computed from every task you can see
+(they respect the global filter chips):
+
+- **Overdue** — tasks whose due date is in the past and that aren't
+  Completed or Cancelled. Working days and holidays are respected: a
+  task due Friday isn't "overdue" on Saturday morning if your weekend
+  isn't a working day.
+- **Due today** — due dates matching today.
+- **Due this week** — everything due in the current week.
+- **Completion** — percentage of your tasks sitting in a terminal
+  stage. The long-run "are we actually finishing things?" number.
+
+## The action lists
+
+Below the cards, three lists in priority order:
+
+- **Overdue** — oldest first. This list is deliberately at the top:
+  if something's rotting, DayDash won't let you scroll past it.
+- **Due today** — your commitments for the day.
+- **Q1 — Important + Urgent** — tasks flagged both important *and*
+  urgent, regardless of date. If it's in this list and not in the
+  other two, it's the thing you should be doing between deadlines.
+
+Click any row to jump straight to that task.
+
+## The charts
+
+The lower half of DayDash is orientation, not action:
+
+- **Tasks by stage** — how work is distributed across your Kanban
+  columns. A fat "In Progress" bar with a thin "Completed" bar is the
+  classic too-much-WIP signature.
+- **The week ahead** — due-date load for each day of the current
+  week, so Thursday doesn't ambush you on Thursday.
+- **By priority** — the spread from Very High to Very Low.
+- **Project progress** — one bar per project, driven by task
+  completion in that project.
+- **Recent activity** — the latest task changes across the workspace.
+  With a team, this is your morning "what happened while I was out".
+
+## A morning routine that works
+
+1. Open DayDash (you're already there — it's the login landing page).
+2. Clear or re-date everything in **Overdue**. An honest re-date beats
+   a rotting red number.
+3. Scan **Due today** and drag anything unrealistic to tomorrow in the
+   [Calendar](/docs/calendar).
+4. Pick the top task from **Q1** and go do it — that's the whole trick.
+
+## Where to next
+
+- [Tasks, subtasks & tags](/docs/tasks) — the anatomy of a task
+- [Eisenhower matrix](/docs/eisenhower) — where the Q1 list comes from

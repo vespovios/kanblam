@@ -1,0 +1,79 @@
+# Calendar
+
+The Calendar view shows tasks laid out by **due date**, in either a
+month grid or a week grid.
+
+![The month calendar with Stratos-1 task pills and multi-day bars spread across launch month](/images/docs/calendar-month.png)
+
+## Switching views
+
+Top-left of the calendar:
+
+- **Month** — six-week grid showing the visible month plus surrounding
+  days. Each day cell shows compact pills for the tasks due that day.
+- **Week** — single-week, tall day columns. Tasks with both a start
+  date and a due date render as a horizontal **bar** spanning multiple
+  days; single-day tasks render as pills.
+
+Arrows take you back/forward by one period; **Today** snaps to the
+current date.
+
+![The week view with a multi-day task bar spanning several days above single-day pills](/images/docs/calendar-week.png)
+
+## What renders where
+
+- **Single-day tasks** (only `dueDate` set) → a compact pill on the
+  due-date cell.
+- **Multi-day tasks** (`startDate` and `dueDate` both set) → a bar
+  spanning the date range. The bar's left edge is the start, the
+  right edge is the due date. On the demo board, *"Design tracker
+  PCB"* runs as a two-week bar while the one-day errands sit as
+  pills beneath it.
+- **Tasks without a due date** don't appear on the calendar at all.
+  Use the [Tasks list](/docs/tasks) to see them.
+
+## Pill colour and glyphs
+
+Each pill shows:
+
+- A priority dot at the left edge (high / medium / low)
+- The task name (truncated if long — hover for the full text)
+- Optional glyphs: ★ Important, ⏱ Urgent, 🔁 Recurring
+
+## Dragging tasks across dates
+
+Click and hold a pill → drag to another day → release. The task's
+due date updates immediately. Multi-day bars work the same way; the
+entire bar moves as a unit, preserving its length.
+
+This makes the calendar the natural place for the morning "be honest
+with yourself" pass: everything DayDash flags as overdue is one drag
+away from a date you'll actually hit.
+
+**Working days only** — if you've configured working days in
+**Settings → Working days**, the calendar tints non-working days
+slightly so you can see them at a glance.
+
+## Holidays
+
+Workspace admins can add holiday dates in **Settings → Holidays** —
+individually, or a whole country's public holidays in one go with
+the [bulk import](/docs/account#holidays). Holiday dates render with
+a coloured strip; KanBlam treats them as non-working days for "due
+today" / "overdue" computations on DayDash.
+
+## Planning a deadline backwards
+
+The week view earns its keep when you plan *backwards* from a fixed
+date. Launch day is the 1st? Give "Run flight-path predictions" a
+start date a week before and a due date the day before — it renders
+as a bar you physically can't miss. Then drag the loose pills
+(helium pickup, weather checks) into the gaps around it.
+
+## Where to next
+
+- [Recurring tasks](/docs/recurring) — recurring task instances
+  appear on the calendar like any other task
+- [Account & settings](/docs/account) — working days and holiday
+  import
+- [Kanban board](/docs/kanban) — the same tasks, by stage instead of date

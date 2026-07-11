@@ -1,0 +1,441 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  // Demo tenants (try.kanblam.com): created by /api/demo, reaped by the
+  // cleanup-demo-workspaces cron after DEMO_TTL_HOURS. Never true on prod.
+  isDemo      Boolean  @default(false)
+  workingDays Int[]    @default([1, 2, 3, 4, 5])
+  holidayCountry      String?
+  holidaySubdivision  String?
+  createdAt   DateTime @default(now())
+
+  users        User[]
+  invites      Invite[]
+  statuses     Status[]
+  priorities   Priority[]
+  kanbanStages KanbanStage[]
+  projects     Project[]
+  tasks        Task[]
+  holidays            Holiday[]
+  recurringTemplates  RecurringTaskTemplate[]
+  tags                   Tag[]
+  billing                WorkspaceBilling?
+  comments               Comment[]
+
+  @@map("workspaces")
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model User {
+  id           String   @id @default(cuid())
+  workspaceId  String
+  email        String
+  name         String?
+  passwordHash String?
+  role         UserRole @default(MEMBER)
+  createdAt    DateTime @default(now())
+
+  workspace                  Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  accounts                   Account[]
+  sessions                   Session[]
+  apiTokens                  ApiToken[]
+  comments                   Comment[]
+  invitesSent                Invite[]                @relation("InvitedBy")
+  projectsLed                Project[]               @relation("ProjectLead")
+  tasksAssigned              Task[]                  @relation("TaskAssignee")
+  recurringTemplatesAssigned RecurringTaskTemplate[] @relation("RecurringTemplateAssignee")
+  recurringTemplatesCreated  RecurringTaskTemplate[] @relation("RecurringTemplateCreator")
+
+  @@unique([workspaceId, email])
+  @@map("users")
+}
+
+model Status {
+  id          String @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String
+  order       Int
+
+  workspace          Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projects           Project[]
+
+  @@unique([workspaceId, name])
+  @@map("statuses")
+}
+
+model Priority {
+  id          String @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String
+  order       Int
+
+  workspace          Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks              Task[]
+  recurringTemplates RecurringTaskTemplate[]
+
+  @@unique([workspaceId, name])
+  @@map("priorities")
+}
+
+model KanbanStage {
+  id          String  @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String
+  order       Int
+  isTerminal  Boolean @default(false)
+
+  workspace          Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks              Task[]
+  recurringTemplates RecurringTaskTemplate[]
+
+  @@unique([workspaceId, name])
+  @@map("kanban_stages")
+}
+
+model Invite {
+  id          String    @id @default(cuid())
+  workspaceId String
+  email       String
+  tokenHash   String    @unique
+  invitedById String
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy User      @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@map("invites")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Project {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  name          String
+  code          String
+  startDate     DateTime?
+  endDate       DateTime?
+  projectLeadId String?
+  clientName    String?
+  statusId      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  workspace          Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectLead        User?                   @relation("ProjectLead", fields: [projectLeadId], references: [id], onDelete: SetNull)
+  status             Status                  @relation(fields: [statusId], references: [id])
+  tasks              Task[]
+  recurringTemplates RecurringTaskTemplate[]
+
+  @@unique([workspaceId, code])
+  @@index([workspaceId])
+  @@map("projects")
+}
+
+model Task {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  projectId     String
+  name          String
+  description   String?
+  isImportant   Boolean   @default(false)
+  isUrgent      Boolean   @default(false)
+  priorityId    String
+  kanbanStageId String
+  assigneeId          String?
+  recurringTemplateId String?
+  startDate           DateTime?
+  dueDate             DateTime?
+  progressPct         Int       @default(0)
+  progressManual      Boolean   @default(false)
+  kanbanOrder         Int       @default(0)
+  notes               String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  workspace         Workspace              @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project           Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  priority          Priority               @relation(fields: [priorityId], references: [id])
+  kanbanStage       KanbanStage            @relation(fields: [kanbanStageId], references: [id])
+  assignee          User?                  @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  recurringTemplate RecurringTaskTemplate? @relation(fields: [recurringTemplateId], references: [id], onDelete: SetNull)
+  comments          Comment[]
+  tags              Tag[]
+  subtasks          Subtask[]
+
+  @@index([workspaceId, dueDate])
+  @@index([workspaceId, projectId, kanbanStageId, kanbanOrder])
+  @@index([workspaceId, assigneeId, dueDate])
+  @@map("tasks")
+}
+
+model Holiday {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  date        DateTime @db.Date
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, date])
+  @@index([workspaceId])
+  @@map("holidays")
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  color       String
+  createdAt   DateTime @default(now())
+
+  workspace          Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks              Task[]
+  recurringTemplates RecurringTaskTemplate[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+  @@map("tags")
+}
+
+model Subtask {
+  id        String   @id @default(cuid())
+  taskId    String
+  title     String
+  completed Boolean  @default(false)
+  position  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId, position])
+  @@map("subtasks")
+}
+
+model SubtaskTemplate {
+  id                  String   @id @default(cuid())
+  recurringTemplateId String
+  title               String
+  position            Int
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  recurringTemplate RecurringTaskTemplate @relation(fields: [recurringTemplateId], references: [id], onDelete: Cascade)
+
+  @@index([recurringTemplateId, position])
+  @@map("subtask_templates")
+}
+
+model RecurringTaskTemplate {
+  id            String  @id @default(cuid())
+  workspaceId   String
+  name          String
+  description   String?
+  projectId     String
+  priorityId    String
+  kanbanStageId String
+  assigneeId    String?
+  isImportant   Boolean @default(false)
+  isUrgent      Boolean @default(false)
+
+  frequency         Frequency
+  interval          Int       @default(1)
+  daysOfWeek        Int[]     @default([])
+  startDate         DateTime  @db.Date
+  endDate           DateTime? @db.Date
+  lastGeneratedDate DateTime? @db.Date
+  isActive          Boolean   @default(true)
+
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  priority    Priority    @relation(fields: [priorityId], references: [id])
+  kanbanStage KanbanStage @relation(fields: [kanbanStageId], references: [id])
+  assignee    User?       @relation("RecurringTemplateAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy   User        @relation("RecurringTemplateCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  tasks       Task[]
+  tags        Tag[]
+  subtaskTemplates SubtaskTemplate[]
+
+  @@index([workspaceId, isActive])
+  @@map("recurring_task_templates")
+}
+
+/// Local lifecycle of a hosted workspace's subscription. Superset of Polar's
+/// own statuses, plus app-enforced states (READ_ONLY/SUSPENDED) that Polar
+/// has no concept of. Polar status is mirrored separately on the subscription.
+enum BillingStatus {
+  NONE        // self-host, or hosted workspace with no paid order yet (incl. checkout-created / Polar `incomplete`)
+  TRIALING    // in trial (D1); entitlements granted
+  ACTIVE      // paid + current
+  PAST_DUE    // payment failed, within grace (D2); still active
+  READ_ONLY   // grace elapsed; writes blocked, data intact, can resubscribe
+  SUSPENDED   // deeper enforcement (D3); login to workspace blocked, export-only
+  CANCELED    // user canceled; runs until period end, then lapses per D2/D3
+}
+
+model WorkspaceBilling {
+  id          String        @id @default(cuid())
+  workspaceId String        @unique
+  status      BillingStatus @default(NONE)
+
+  // Polar identifiers (nullable until first checkout completes)
+  polarCustomerId       String?  @unique        // Polar customer id
+  externalCustomerId    String?  @unique         // what we send as external_customer_id (== workspaceId)
+  polarSubscriptionId   String?  @unique        // active/most-recent subscription
+  polarProductId        String?                  // resolves to a tier (D4)
+  polarPriceId          String?                  // resolves to cadence/amount (D4)
+
+  // Lifecycle dates (all nullable; populated from webhooks)
+  trialEndsAt           DateTime?                // D1
+  currentPeriodEnd      DateTime?                // renewal/expiry boundary
+  cancelAtPeriodEnd     Boolean   @default(false)
+  canceledAt            DateTime?
+  gracePeriodEndsAt     DateTime?                // D2; null => no grace
+  readOnlyAt            DateTime?                // when enforcement flipped to READ_ONLY
+  suspendedAt           DateTime?
+
+  // Founding / pricing (D4/D5)
+  isFoundingMember      Boolean   @default(false)
+  foundingLockedUntil   DateTime?
+  seatCount             Int?                      // D6; null under flat pricing
+
+  // Sync/audit
+  polarStatus           String?                   // verbatim Polar subscription.status
+  lastSyncedAt          DateTime?                 // last successful reconcile/webhook apply
+  lastWebhookEventId     String?                  // last applied event id (debug aid)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([currentPeriodEnd])
+  @@map("workspace_billing")
+}
+
+model BillingEvent {
+  id            String   @id @default(cuid())
+  polarEventId  String   @unique          // Standard Webhooks event id — idempotency key
+  type          String                    // e.g. "subscription.active", "order.paid"
+  workspaceId   String?                   // resolved from external_customer_id when possible
+  payload       Json                      // raw validated event body (for replay/debug)
+  receivedAt    DateTime @default(now())
+  processedAt   DateTime?                 // set when side effects committed; null => failed/pending
+  error         String?                   // last processing error, if any
+
+  @@index([type])
+  @@index([workspaceId])
+  @@index([processedAt])
+  @@map("billing_events")
+}
+
+// Personal access tokens for the public REST API (/api/v1). A token acts
+// as its user — same workspace, same role. Raw tokens are shown once at
+// creation and stored only as a SHA-256 hash; `tokenPrefix` (kb_ + first
+// 8 chars) is kept for display in the Settings list.
+model ApiToken {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  tokenPrefix String
+  tokenHash   String    @unique
+  scopes      String[]  @default(["read"])
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("api_tokens")
+}
+
+// Task comments — the minimal "agent has a voice" entity (API plan
+// 2026-07-07). Plain text, no threads/reactions/edits in v1; delete own
+// (admins may moderate). authorId survives user deletion as null so the
+// conversation history stays intact ("former member").
+model Comment {
+  id          String   @id @default(cuid())
+  workspaceId String
+  taskId      String
+  authorId    String?
+  body        String
+  createdAt   DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  task      Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author    User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([taskId, createdAt])
+  @@map("comments")
+}

@@ -1,0 +1,101 @@
+# Kanban board
+
+The Kanban board is KanBlam's centerpiece. Tasks live in columns by
+**stage**; you move them right as work progresses.
+
+![The Kanban board with Stratos-1 mission tasks spread across Ideas, In Progress, On Hold, Completed, and Cancelled columns](/images/docs/kanban.png)
+
+## The default stages
+
+Out of the box your workspace has five stages:
+
+- **Ideas** — captured but not committed to. The parking lot.
+- **In Progress** — actively worked on.
+- **On Hold** — started, then blocked on something outside your
+  control. A card in On Hold should say *what it's waiting on* in its
+  notes — "supplier out of stock" beats a silent parked card.
+- **Completed** — done. Cards collapse here.
+- **Cancelled** — abandoned without completing. Keeping these visible
+  (rather than deleting) preserves the decision: *"Evaluate GSM backup
+  tracker — cancelled, no coverage above 2 km."*
+
+Admins can rename or reorder stages from the database directly today
+(a Settings UI for stage editing is on the roadmap). Talk to your
+workspace admin if you need different stages.
+
+## Reading a card
+
+Each card shows the task name, its project code, priority, due date,
+tags, assignee avatar, and — when the task has subtasks — a progress
+bar. Glyphs mark ★ Important, ⏱ Urgent and 🔁 Recurring tasks, so a
+glance at a column tells you not just *how much* work is there but
+*what kind*.
+
+## Moving cards
+
+**With the mouse:** click the **grip handle** (the dotted vertical bar
+top-right of each card) and drag to another column or position.
+Releasing snaps the card into its new home. The change saves
+immediately — no Save button.
+
+**With the keyboard:** tab into a card's grip handle, press
+`Space` to pick up, arrow keys to move, `Space` again to drop, `Esc`
+to cancel. Useful for moving multiple cards quickly without
+reaching for the trackpad.
+
+**Click anywhere else on the card** to open it in the side drawer for
+editing.
+
+## Filtering the board
+
+The global filter chips in the top bar apply here:
+
+- **Project** — show only one project's tasks
+- **Assignee** — show only tasks assigned to one person
+- **Tags** — multi-select; tasks with at least one matching tag stay
+  visible
+- **Quadrant** — show only Important & Urgent, etc.
+- **Hide completed** — collapses the Completed and Cancelled columns
+  to summaries
+
+## Swim lanes
+
+Above the board, the **Lane** dropdown splits the board horizontally
+by a second axis:
+
+- **None** — the default, one row of columns.
+- **By project** — each lane is a project. This is the view for
+  running several workstreams at once: one glance shows the payload
+  build humming along while recovery prep hasn't started.
+- **By assignee** — one lane per person. The team stand-up view:
+  who's overloaded, who's blocked, who's free.
+- **By tag** — lanes per tag; a task with two tags appears in both
+  lanes.
+
+![The Kanban board grouped into per-project swim lanes](/images/docs/kanban-swimlanes.png)
+
+Lanes can be collapsed individually — click the chevron on the lane
+row header to fold a lane down to a summary count. The board
+remembers your collapsed lanes between visits.
+
+## Recipes
+
+**Weekly triage.** Filter to nothing, look at **Ideas** only. Anything
+that's been there over a month either gets a due date and a drag to
+In Progress, or an honest trip to Cancelled. Ideas is a parking lot,
+not a landfill.
+
+**Limit work in progress.** If your In Progress column doesn't fit on
+one screen, you're not doing that work — you're storing it. Drag the
+excess back to Ideas and feel nothing.
+
+**Run a multi-project week.** Lane by project, collapse the lanes
+you're not touching today, and work the remaining lanes left to
+right.
+
+## Where to next
+
+- [Eisenhower matrix](/docs/eisenhower) — the same tasks sliced by
+  importance and urgency
+- [Calendar](/docs/calendar) — the same tasks laid out by due date
+- [Keyboard shortcuts](/docs/keyboard) — drive Kanban faster

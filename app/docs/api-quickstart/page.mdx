@@ -1,0 +1,79 @@
+# API quickstart
+
+KanBlam has a token-authenticated REST API over everything on your board:
+tasks, subtasks, comments, projects, tags. Scripts, integrations, and — the
+reason it exists — [AI agents working as board members](/docs) can do
+anything you can do.
+
+Full endpoint list: the [API reference](/docs/api). Machine-readable spec:
+[/openapi.json](/openapi.json).
+
+## 1. Create a token
+
+**Settings → API tokens** → name it, pick scopes, **Create token**. Copy it
+immediately — it's shown exactly once. Tokens act *as you*: your workspace,
+your role, limited by the token's scopes (`read`, `write`).
+
+```bash
+export KB="Authorization: Bearer kb_your_token_here"
+export API="https://kanblam.com/api/v1"   # or your self-host URL
+```
+
+## 2. Look around
+
+```bash
+curl -s $API/workspace -H "$KB"
+curl -s $API/stages -H "$KB"          # id ↔ name map for the board columns
+curl -s "$API/tasks?limit=5" -H "$KB"
+```
+
+Everything is scoped to the token's workspace — there is no cross-workspace
+anything.
+
+## 3. Create a task
+
+The minimal body is just a project and a name — priority defaults to
+Medium, stage to the first column, assignee to you:
+
+```bash
+PROJECT=$(curl -s $API/projects -H "$KB" | jq -r '.projects[0].id')
+
+curl -s -X POST $API/tasks -H "$KB" -H "Content-Type: application/json" \
+  -d "{\"projectId\":\"$PROJECT\",\"name\":\"Tune the antenna\",\"dueDate\":\"2026-08-01\"}"
+```
+
+## 4. Work the board
+
+```bash
+# move a card to another column (watch it jump on an open board — realtime)
+curl -s -X POST $API/tasks/$TASK/move -H "$KB" -H "Content-Type: application/json" \
+  -d "{\"kanbanStageId\":\"$STAGE\"}"
+
+# tick a checklist item
+curl -s -X PATCH $API/subtasks/$SUBTASK -H "$KB" -H "Content-Type: application/json" \
+  -d '{"completed":true}'
+
+# report progress in prose
+curl -s -X POST $API/tasks/$TASK/comments -H "$KB" -H "Content-Type: application/json" \
+  -d '{"body":"SWR at 1.4 across the band — antenna done."}'
+```
+
+Every mutation broadcasts the same realtime event the app uses, so open
+browsers update within a second.
+
+## Rules of the road
+
+- `Authorization: Bearer kb_…` on every request. No cookies, no CSRF, no
+  exceptions.
+- **120 requests/minute per token.** A `429` comes with a `Retry-After`
+  header — honour it.
+- Errors are always `{"error":{"code":"…","message":"…"}}`. Unknown ids
+  and other workspaces' ids both `404` — don't read anything into it.
+- Dates: `startDate`/`dueDate` are `YYYY-MM-DD`; timestamps are ISO 8601.
+- Treat tokens like passwords. Revoke anything you're not sure about —
+  Settings shows each token's last-used time.
+
+## Where to next
+
+- [API reference](/docs/api) — every endpoint, parameter, and shape
+- [Tasks, subtasks & tags](/docs/tasks) — the concepts behind the fields

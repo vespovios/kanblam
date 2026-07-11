@@ -1,0 +1,246 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* @tailwindcss/typography — provides `prose` utilities used by the docs
+ * page (and any future markdown-rendered surface). Without this, MDX
+ * pages render as plain HTML with Tailwind's preflight reset applied,
+ * so headings/lists/code blocks look like unstyled body text. */
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ============================================================
+   KanBlam design language — "Soft Slate" (calm & focused)
+   Anchored to the logo: navy ink, a single muted slate-blue
+   brand accent, soft slate-grey neutrals. Colour is spent
+   sparingly — large surfaces stay neutral, the accent shows
+   up only on active states, primary actions, and focus rings.
+
+   Token architecture (shadcn-standard):
+   - --primary      the single brand accent (buttons, active tab,
+                    focus rings, calendar "this week" bars).
+   - --accent       a SUBTLE neutral hover tint — NOT a CTA colour.
+                    Used by shadcn primitives for menu-item hover.
+   - --header-*     the app-shell header band, which is a LIGHT
+                    pale-slate surface (not a saturated band).
+   The future Settings theme customiser writes to these tokens.
+   ============================================================ */
+
+:root {
+  --background: #ffffff;
+  --foreground: #2a3650;          /* navy ink */
+
+  --card: #ffffff;
+  --card-foreground: #2a3650;
+
+  --popover: #ffffff;
+  --popover-foreground: #2a3650;
+
+  --primary: #4f6fa8;             /* muted slate-blue — brand accent */
+  --primary-foreground: #ffffff;
+
+  --secondary: #eef1f5;
+  --secondary-foreground: #3a4866;
+
+  --muted: #f4f6f9;
+  --muted-foreground: #5e6776;  /* bumped from #717a8a for WCAG AA on light bg — Hermes flagged borderline contrast */
+
+  --accent: #edf0f4;              /* subtle neutral hover tint */
+  --accent-foreground: #2a3650;
+
+  --destructive: #c0504d;         /* muted brick — clear danger, not loud */
+
+  --border: #e1e5eb;
+  --input: #e1e5eb;
+  --ring: #4f6fa8;
+
+  /* Chart ramp — muted slate-blue, teal, tan, rose, sage */
+  --chart-1: #4f6fa8;
+  --chart-2: #5ea396;
+  --chart-3: #c99a6b;
+  --chart-4: #b07089;
+  --chart-5: #6bae7f;
+
+  --radius: 0.5rem;
+
+  /* Sidebar tokens retained for shadcn-component compatibility even though
+     the app shell no longer renders a sidebar. */
+  --sidebar: #eef1f5;
+  --sidebar-foreground: #2a3650;
+  --sidebar-primary: #4f6fa8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #2a3650;
+  --sidebar-border: #e1e5eb;
+  --sidebar-ring: #4f6fa8;
+
+  /* App-shell header band — a LIGHT pale-slate surface. Everything
+     rendered inside the band references --header-foreground (NOT
+     --primary-foreground) so it works regardless of band lightness. */
+  --header-bg: #edf0f4;
+  --header-foreground: #2a3650;
+  --header-border: #dde2e9;
+  --header-muted: #5e6776;        /* muted text inside the band — bumped for WCAG AA */
+  --header-hover: #e4e8ee;        /* hover bg for icon-buttons in the band */
+
+  --subhead-bg: #f4f6f9;
+  --tab-hover: #e4e8ee;
+  --tab-active-bg: #e9edf2;
+  --tab-active-foreground: #4f6fa8;
+
+  /* Eisenhower quadrant tints — semantic urgency colours, kept muted. */
+  --q1-tint: #fecaca66;  /* rose   — important + urgent */
+  --q2-tint: #fde68a66;  /* amber  — important, not urgent */
+  --q3-tint: #bfdbfe66;  /* blue   — urgent, not important */
+  --q4-tint: #d1d5db66;  /* slate  — neither */
+
+  /* Calendar bar/pill fills — matched to the *rendered* Eisenhower
+     quadrant colours. The quadrant tints are #fecaca / #bfdbfe at 40%
+     alpha over white, which the eye sees as #ffeaea / #e5f1ff — so the
+     bars use those effective values directly (full opacity) to match.
+     "Current" (this-week) bars = Q1 rose; everything else = Q3 blue. */
+  --bar-active: #ffeaea;          /* Eisenhower Q1 rose (rendered) — this week */
+  --bar-active-foreground: #1a1a1a;
+  --bar-default: #e5f1ff;         /* Eisenhower Q3 blue (rendered) — other */
+  --bar-default-foreground: #1a1a1a;
+}
+
+.dark {
+  --background: #11151c;
+  --foreground: #dce0e7;
+
+  --card: #1c222c;
+  --card-foreground: #dce0e7;
+
+  --popover: #1c222c;
+  --popover-foreground: #dce0e7;
+
+  --primary: #7e9bc9;             /* lifted slate-blue for dark surfaces */
+  --primary-foreground: #11151c;
+
+  --secondary: #272d38;
+  --secondary-foreground: #c2cad6;
+
+  --muted: #151a22;
+  --muted-foreground: #808996;
+
+  --accent: #272d38;              /* subtle neutral hover tint */
+  --accent-foreground: #dce0e7;
+
+  --destructive: #d66b68;
+
+  --border: #2a313c;
+  --input: #2a313c;
+  --ring: #7e9bc9;
+
+  --chart-1: #7e9bc9;
+  --chart-2: #6fb8aa;
+  --chart-3: #d6a878;
+  --chart-4: #c089a0;
+  --chart-5: #7fc193;
+
+  --sidebar: #1c222c;
+  --sidebar-foreground: #dce0e7;
+  --sidebar-primary: #7e9bc9;
+  --sidebar-primary-foreground: #11151c;
+  --sidebar-accent: #272d38;
+  --sidebar-accent-foreground: #dce0e7;
+  --sidebar-border: #2a313c;
+  --sidebar-ring: #7e9bc9;
+
+  --header-bg: #1a1f28;
+  --header-foreground: #dce0e7;
+  --header-border: #272d38;
+  --header-muted: #808996;
+  --header-hover: #232a35;
+
+  --subhead-bg: #151a22;
+  --tab-hover: #232a35;
+  --tab-active-bg: #232a35;
+  --tab-active-foreground: #9db4d6;
+
+  --q1-tint: #7f1d1d40;
+  --q2-tint: #78350f40;
+  --q3-tint: #1e3a8a40;
+  --q4-tint: #37415140;
+
+  /* Calendar bars — the dark-mode Eisenhower quadrant washes are nearly
+     black (deep hue at low alpha over the dark grid), which isn't
+     legible as a bar fill. So dark mode keeps the same light #ffeaea /
+     #e5f1ff pastels — they stay readable with near-black lettering and
+     hold the same rose / blue hue relationship to the quadrants. */
+  --bar-active: #ffeaea;          /* Q1 rose — this week */
+  --bar-active-foreground: #1a1a1a;
+  --bar-default: #e5f1ff;         /* Q3 blue — other */
+  --bar-default-foreground: #1a1a1a;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer utilities {
+  /* Used on the mobile topbar filter strip so the horizontal scroll region
+     doesn't show a stub scrollbar. Touch devices already hide them; this
+     handles desktop-narrow-window cases. */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -1,0 +1,30 @@
+# Version control
+.git
+.gitignore
+
+# Build artifacts
+.next
+node_modules
+dist
+build
+
+# Environment + secrets
+.env
+.env.*
+!.env.example
+
+# Tests / docs
+tests
+coverage
+docs
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store
+
+# Local Docker overrides
+docker-compose.*.local.yml
+
+# Claude/agent state
+.claude

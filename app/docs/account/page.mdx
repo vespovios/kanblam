@@ -1,0 +1,96 @@
+# Account & settings
+
+Settings live at **/settings** (top-right tab in the topbar nav). Every
+user sees their own account section; admins additionally see the
+workspace-level sections below it.
+
+## Account section (every user)
+
+### Password
+
+The first card under Settings. Three fields:
+
+- **Current password** — your existing password, for verification
+- **New password** — at least 8 characters
+- **Confirm new password** — must match the new password
+
+KanBlam never enforces complexity rules beyond the length floor —
+strong unique passwords stored elsewhere (a password manager) beat
+"must contain a number" rules.
+
+After save, the change is immediate. **Other devices stay logged in**
+with the previous session — session-revocation-on-password-change is
+planned but not shipped yet. If you suspect compromise, change the
+password *and* sign out from each device.
+
+### API tokens
+
+Personal access tokens for the [REST API](/docs/api-quickstart). Create
+with a name and scopes (`read`, `write`); the token is shown **once** —
+copy it then. The list shows each token's prefix, scopes, and last-used
+time; revoke anything you don't recognise. A token acts as you, so treat
+it like a password.
+
+## Workspace-admin section
+
+Only visible to users with the ADMIN role.
+
+### Workspace name
+
+Renames your workspace. Shows up in the topbar pill, in invite emails,
+and in some other places. Just type and Save.
+
+### Team members
+
+Lists every member of your workspace with their role and join date.
+Pending invites (sent but not yet accepted) appear below the
+confirmed-member list.
+
+The current beta surface is **read-only** — to remove a member or
+change a role today you go through the database directly. Member-
+management UI is on the roadmap.
+
+### Invite new member
+
+Type an email + pick a role (Admin or Member). KanBlam emails them
+a one-time signup link valid for 7 days. They land on a signup form
+prefilled with their email, set a password, and join the workspace.
+
+### Working days
+
+A row of toggle checkboxes for Mon–Sun. KanBlam treats the unchecked
+days as **non-working days** for the dashboard's "Due today" and
+"Overdue" computations — a task that's "overdue" but only by a weekend
+won't scream at you on Monday morning.
+
+### Holidays
+
+Workspace-level holidays. Each entry is a name + a date. Holidays act
+like non-working days for due-date math, and they tint the day cells
+on the calendar so you can see them at a glance.
+
+Two ways to add them:
+
+- **One at a time** — name + date, Add.
+- **Bulk import** — pick a country (and region, where it matters —
+  Scotland's bank holidays aren't England's), pick a year, and
+  KanBlam shows a preview of that country's public holidays before
+  importing. The import is deduplication-safe: run it again next
+  year, or after adding some dates by hand, and nothing doubles up.
+
+### Import from Asana
+
+Bring an existing Asana project across — tasks, subtasks, due dates
+and completion state — in four steps. Full guide:
+[Import from Asana](/docs/import).
+
+## Signing out
+
+Avatar circle in the top-right → "Sign out". Clears your session and
+redirects to the login page. You stay logged in on other devices.
+
+## Where to next
+
+- [Self-host](/docs/self-host) — running your own copy
+- [Keyboard shortcuts](/docs/keyboard) — drive your account from the
+  keyboard

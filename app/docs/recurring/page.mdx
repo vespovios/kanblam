@@ -1,0 +1,85 @@
+# Recurring tasks
+
+Recurring tasks repeat on a cadence — daily, weekly, monthly, or a
+custom pattern. KanBlam handles them through a **template-and-instance**
+model: you describe the recurrence once, KanBlam generates concrete
+task instances ahead of time so they appear in your Kanban, Calendar
+and Tasks list like any other task.
+
+## Creating a recurring task
+
+In the New Task dialog (or from Quick Add), toggle the **Repeat**
+section open. Pick a preset:
+
+![The new-task dialog with the Repeat dropdown for setting a recurrence](/images/docs/task-create-dialog.png)
+
+- **Does not repeat** — a normal one-off task.
+- **Every weekday** — Monday through Friday.
+- **Daily** — every N days.
+- **Weekly** — every N weeks, optionally on specific weekdays.
+- **Monthly** — every N months on the same day-of-month.
+- **Custom** — combine the dimensions above.
+
+The **Start date** controls when the first instance appears. **End
+date** (optional) caps the series.
+
+## How instances are generated
+
+KanBlam runs a background cron every five minutes. For each active
+recurring template it materialises:
+
+- All occurrences from the **rolling high-water mark** (`lastGeneratedDate
+  + 1 day`, or the start date the first time) up to a window end.
+- The window end is **`max(today + 14 days, the Nth upcoming occurrence)`**.
+  For daily / weekly rules the day-count bound wins; for quarterly or
+  yearly rules the occurrence-count floor ensures you always see your
+  next handful of instances regardless of how far apart they are.
+
+You don't need to think about any of this. Open Kanban, your weekly
+recurring task is sitting in its stage for next Monday — on the demo
+workspace, the Saturday *"APRS net check-in"* appears in Ideas with a
+🔁 glyph every week, without anyone creating it.
+
+## Editing or deleting a recurring instance
+
+Click a recurring task to open it in the drawer. Make a change and
+hit Save — KanBlam asks **which instances** the change should apply to:
+
+- **This task** — only this single occurrence.
+- **This and following** — this occurrence and every future one.
+  Splits the series at this date.
+- **All tasks** — every instance of the series (past and future).
+
+Same prompt on **Delete**. Choose carefully: "All tasks" deletes the
+entire series including the underlying template.
+
+## What propagates vs what doesn't
+
+When you edit a series with **All** or **Following** scope, the
+template-defining fields propagate to existing instances:
+
+- ✅ Name, description, priority, importance flag, urgency flag, tags
+
+The **work-state** fields don't — they belong to each instance:
+
+- ❌ Kanban stage (where in the workflow), progress, subtask
+  completion, due date for individual instances
+
+So renaming a recurring series doesn't reset your progress on the
+"this one" you're currently working on.
+
+## When to use it
+
+- Routine work: "submit weekly report", "triage the Ideas column every Monday"
+- Maintenance: "rotate SSL certs every 90 days", "charge & log the battery bank weekly"
+- Habits: "exercise plan, daily"
+
+Don't use it for one-off work that just happens to repeat sometimes —
+create those as new tasks.
+
+## Where to next
+
+- [Eisenhower matrix](/docs/eisenhower) — recurring instances inherit
+  the template's Important/Urgent flags
+- [Calendar](/docs/calendar) — recurring instances appear on the
+  calendar like any other task

@@ -1,0 +1,107 @@
+# Tasks, subtasks & tags
+
+Every view in KanBlam — Kanban, Calendar, Eisenhower, DayDash — is a
+different lens over the same task records. This page covers the task
+itself: what's on it, and the fastest ways to work with it.
+
+## The Tasks table
+
+The **Tasks** tab is the full, sortable table of everything in the
+workspace: name, project, stage, priority, assignee, tags, dates and
+progress in one place. Click a column header to sort; click any row
+to open the task in the drawer.
+
+![The Tasks table listing Stratos-1 mission tasks with project codes, stages, priorities, tags, and due dates](/images/docs/tasks.png)
+
+The search box filters by name as you type, and the secondary filters
+(project, quadrant, tags, hide-completed) combine with the global
+filter chips in the top bar.
+
+## Anatomy of a task
+
+Open any task and you'll find:
+
+![The task drawer for "Design tracker PCB" showing description, subtasks with progress, tags, dates, and priority](/images/docs/task-drawer.png)
+
+- **Name and description** — the description holds the how and why:
+  acceptance criteria, links, measurements. Keep the name short
+  enough to read on a Kanban card.
+- **Project** — every task belongs to exactly one project. Moving a
+  task to a different project is just changing this field — nothing
+  else about the task is touched.
+- **Stage** — the Kanban column: Ideas, In Progress, On Hold,
+  Completed or Cancelled.
+- **Priority** — Very High to Very Low. Independent from
+  important/urgent: priority is *how big*, the flags are *what kind*.
+- **Important / Urgent flags** — the two checkboxes that place the
+  task on the [Eisenhower matrix](/docs/eisenhower).
+- **Start date and due date** — a task with both renders as a
+  multi-day bar on the [Calendar](/docs/calendar); due-date-only
+  tasks render as pills.
+- **Progress** — fills automatically from subtask completion, or
+  drag the slider yourself for tasks without subtasks. Manual wins:
+  once you touch the slider, subtasks stop driving the number.
+- **Notes** — a scratchpad below the structured fields. Supplier
+  ETAs, call outcomes, "do NOT substitute alkaline cells" — the
+  stuff that doesn't belong in the description but you need next week.
+
+## Subtasks
+
+Break a task down without cluttering the board. On the Stratos-1
+demo workspace, *Design tracker PCB* carries four subtasks —
+schematic review, RF routing, DRC pass, fab order — and its progress
+bar reads 50% because two of the four are ticked.
+
+- Add subtasks in the drawer; **Enter** adds one and keeps focus in
+  the input so you can pour a checklist in.
+- Drag the handles (or use keyboard drag-and-drop) to reorder.
+- Ticking a subtask updates the parent's progress automatically.
+
+If a subtask starts growing subtasks of its own, that's the signal to
+promote it to a real task.
+
+## Tags
+
+Tags cut across projects. A `budget` tag can sit on tasks in three
+different projects, and clicking it shows the money-shaped work in
+one list, no matter where it lives.
+
+![The Tags view showing colour-coded tags like electronics, ham-radio, and budget with task counts](/images/docs/tags.png)
+
+- Create tags on the fly in Quick Add (`#electronics` — new names are
+  created automatically) or from the **Tags** tab.
+- Each tag gets a colour; edit it from the Tags tab.
+- Tag names are single words (letters, numbers, `-` and `_`).
+- Filter any view by tags via the global **Tags** chip — tasks with
+  at least one selected tag stay visible.
+
+**Tags vs projects:** a project is where a task lives (one each); tags
+are what a task is about (as many as you like). "Payload & Electronics"
+is a project. `testing`, `paperwork`, `budget` are tags.
+
+## Creating tasks fast
+
+The fastest path is Quick Add — `⌘K` / `Ctrl+K` from anywhere, then a
+single line:
+
+```
+Solder GPS header [PAY] #electronics !high !important due:fri
+```
+
+That creates *"Solder GPS header"* in the PAY project, tagged
+`electronics`, priority High, flagged Important, due Friday — no
+dialog, no mouse. Full token list in
+[Keyboard shortcuts](/docs/keyboard).
+
+![The Quick Add palette parsing project, tag, priority, and due-date tokens as you type](/images/docs/quick-add.png)
+
+For everything Quick Add can't express — descriptions, subtasks,
+start dates, recurrence — use **Tasks → + New task**:
+
+![The new-task dialog with fields for project, priority, dates, subtasks, and the Repeat dropdown](/images/docs/task-create-dialog.png)
+
+## Where to next
+
+- [Projects](/docs/projects) — grouping tasks into deliverables
+- [Kanban board](/docs/kanban) — working the stages
+- [Recurring tasks](/docs/recurring) — tasks that come back on a schedule

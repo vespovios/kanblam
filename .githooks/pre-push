@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# pre-push hook — block direct pushes to the protected branch `main`.
+#
+# Why this exists: KanBlam is a private repo on a free GitHub plan, where
+# server-side branch rulesets are NOT enforced. This hook is the
+# client-side guardrail. It lives in a committed hooks directory so every
+# clone — notably the Harry bot's — carries it.
+#
+# Activate once per clone (covers the main checkout and all worktrees):
+#   git config core.hooksPath .githooks
+#
+# Work belongs on feature branches (the bot uses `harry/*`); changes reach
+# `main` only through a reviewed pull request. When KanBlam moves to a
+# GitHub organisation or goes public, replace this with a server-enforced
+# ruleset.
+
+protected_ref="refs/heads/main"
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  if [ "$remote_ref" = "$protected_ref" ]; then
+    echo "" >&2
+    echo "  BLOCKED: direct push to 'main' is not allowed." >&2
+    echo "" >&2
+    echo "  Put the work on a branch and open a pull request instead:" >&2
+    echo "      git switch -c harry/<short-name>" >&2
+    echo "      git push -u origin harry/<short-name>" >&2
+    echo "" >&2
+    exit 1
+  fi
+done
+
+exit 0
