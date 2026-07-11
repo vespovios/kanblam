@@ -335,7 +335,7 @@
         "tags": [
           "Reference"
         ],
-        "summary": "Workspace members (id + name only)",
+        "summary": "Workspace members",
         "description": "Members have a `kind`: `human` or `agent`. Agent members are API-only users.",
         "x-required-scope": "read",
         "responses": {
