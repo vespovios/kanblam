@@ -119,8 +119,9 @@ const OPS: Op[] = [
     summary: "Project statuses",
     responses: { ...ok("Statuses", { statuses: [{ id: "cku…status", name: "Not Started", color: "#9ca3af", order: 1 }] }), ...errorResponses(401, 403, 429) } },
   { method: "get", path: "/members", tag: "Reference", scope: "read",
-    summary: "Workspace members (id + name only)",
-    responses: { ...ok("Members", { members: [{ id: "cku…user", name: "Brisk Otter" }] }), ...errorResponses(401, 403, 429) } },
+    summary: "Workspace members",
+    description: "Members have a `kind`: `human` or `agent`. Agent members are API-only users.",
+    responses: { ...ok("Members", { members: [{ id: "cku…user", name: "Brisk Otter", kind: "human" }] }), ...errorResponses(401, 403, 429) } },
 
   // ---- Tasks ----
   { method: "get", path: "/tasks", tag: "Tasks", scope: "read",

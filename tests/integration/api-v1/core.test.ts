@@ -81,12 +81,12 @@ describe("workspace scoping", () => {
     expect(names).not.toContain("Alien Stage");
   });
 
-  it("members endpoint exposes id and name only", async () => {
+  it("members endpoint exposes id, kind, and name only", async () => {
     const { token } = await mintToken(seed.adminId);
     const body = await (await getMembers(req(token), extra)).json();
     expect(body.members.length).toBe(2);
     for (const m of body.members) {
-      expect(Object.keys(m).sort()).toEqual(["id", "name"]);
+      expect(Object.keys(m).sort()).toEqual(["id", "kind", "name"]);
     }
   });
 });

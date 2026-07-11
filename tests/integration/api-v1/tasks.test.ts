@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { setupTestWorkspace, type SeededWorkspace } from "@/tests/integration/helpers/workspace";
 import { createApiToken } from "@/lib/api-tokens/service";
 import { createProject } from "@/lib/projects/service";
+import { createTag } from "@/lib/tags/service";
 import { _resetRateLimiter } from "@/lib/api/rate-limit";
 import { GET as listTasks, POST as postTask } from "@/app/api/v1/tasks/route";
 import { GET as getTask, PATCH as patchTask, DELETE as deleteTask } from "@/app/api/v1/tasks/[id]/route";
@@ -77,6 +78,16 @@ describe("POST /api/v1/tasks", () => {
     expect(task.recurring).toBe(false);
     // assignee never exposes an email
     expect(Object.keys(task.assignee).sort()).toEqual(["id", "name"]);
+  });
+
+  it("project and tags are whitelisted to their public contract fields", async () => {
+    const task = await mkTask("Ballast tank check", { tagIds: [], subtasks: [] });
+    expect(Object.keys(task.project).sort()).toEqual(["code", "id", "name"]);
+
+    const tag = await createTag(seed.workspaceId, { name: "ham-radio" });
+    const withTag = await mkTask("Antenna re-align", { tagIds: [tag.id] });
+    expect(withTag.tags.length).toBe(1);
+    expect(Object.keys(withTag.tags[0]).sort()).toEqual(["color", "id", "name"]);
   });
 
   it("422 on validation failure, 404 on foreign project", async () => {

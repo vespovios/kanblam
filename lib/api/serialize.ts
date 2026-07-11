@@ -39,7 +39,8 @@ export function serializeTask(t: TaskRow) {
     name: t.name,
     description: t.description,
     notes: t.notes,
-    project: t.project,
+    // Whitelisted — internal includes may carry more fields than the contract.
+    project: { id: t.project.id, name: t.project.name, code: t.project.code },
     stage: { id: t.kanbanStage.id, name: t.kanbanStage.name, isTerminal: t.kanbanStage.isTerminal },
     priority: { id: t.priority.id, name: t.priority.name },
     assignee: t.assignee ? { id: t.assignee.id, name: t.assignee.name } : null,
@@ -51,7 +52,7 @@ export function serializeTask(t: TaskRow) {
     progressPct: t.progressPct,
     progressManual: t.progressManual,
     recurring: t.recurringTemplateId !== null,
-    tags: t.tags,
+    tags: t.tags.map((tag) => ({ id: tag.id, name: tag.name, color: tag.color })),
     subtasks: t.subtasks.map(serializeSubtask),
     createdAt: t.createdAt.toISOString(),
     updatedAt: t.updatedAt.toISOString(),
