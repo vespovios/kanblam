@@ -395,7 +395,7 @@ export function TaskEditDrawer({
                       {members.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
                           {m.name ?? m.email}
-                          {m.kind === "AGENT" && <Badge variant="outline" className="ml-2">Agent</Badge>}
+                          {m.kind === "AGENT" && <Badge variant="outline">Agent</Badge>}
                         </SelectItem>
                       ))}
                     </SelectContent>

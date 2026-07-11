@@ -12,6 +12,7 @@ import { ProjectKanbanTab } from "@/components/kanban/project-kanban-tab";
 import { ProjectEisenhowerTab } from "@/components/eisenhower/project-eisenhower-tab";
 import { ProjectOverviewTab } from "@/components/projects/project-overview-tab";
 import { PageRealtimeBridge } from "@/components/realtime/page-realtime-bridge";
+import { Badge } from "@/components/ui/badge";
 import type { LaneAxis } from "@/lib/kanban/lanes";
 
 interface Props {
@@ -75,7 +76,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
                 isTerminal: true,
               },
             },
-            assignee: { select: { id: true, name: true, email: true } },
+            assignee: { select: { id: true, name: true, email: true, kind: true } },
           },
         })
       : [];
@@ -108,7 +109,12 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
             <ProjectStatusBadge status={project.status} />
             {project.clientName && <span>Client: {project.clientName}</span>}
             {project.projectLead && (
-              <span>Lead: {project.projectLead.name ?? project.projectLead.email}</span>
+              <span>
+                Lead: {project.projectLead.name ?? project.projectLead.email}
+                {project.projectLead.kind === "AGENT" && (
+                  <Badge variant="outline" className="ml-1.5">Agent</Badge>
+                )}
+              </span>
             )}
           </div>
         </div>

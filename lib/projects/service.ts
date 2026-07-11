@@ -28,7 +28,7 @@ export async function listProjects(workspaceId: string) {
     orderBy: { createdAt: "desc" },
     include: {
       status: true,
-      projectLead: { select: { id: true, name: true, email: true } },
+      projectLead: { select: { id: true, name: true, email: true, kind: true } },
       _count: { select: { tasks: true } },
     },
   });
@@ -39,7 +39,7 @@ export async function getProject(workspaceId: string, id: string) {
     where: { id, workspaceId },
     include: {
       status: true,
-      projectLead: { select: { id: true, name: true, email: true } },
+      projectLead: { select: { id: true, name: true, email: true, kind: true } },
       _count: { select: { tasks: true } },
     },
   });

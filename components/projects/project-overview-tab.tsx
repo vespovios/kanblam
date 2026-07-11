@@ -3,6 +3,7 @@ import {
   type ProjectProgressInput,
 } from "@/lib/projects/progress";
 import { DashboardStageChart } from "@/components/dashboard/dashboard-stage-chart";
+import { Badge } from "@/components/ui/badge";
 import { formatShortDate } from "@/lib/dates/format";
 
 interface OverviewTask extends ProjectProgressInput {
@@ -13,7 +14,7 @@ interface OverviewTask extends ProjectProgressInput {
     order: number;
     isTerminal: boolean;
   };
-  assignee: { id: string; name: string | null; email: string } | null;
+  assignee: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" } | null;
 }
 
 interface Props {
@@ -55,7 +56,7 @@ export function ProjectOverviewTab({ tasks, startDate, endDate, createdAt }: Pro
   const stages = [...stageMap.values()].sort((a, b) => a.order - b.order);
 
   // Tasks by assignee — busiest first, an "Unassigned" bucket last.
-  const assigneeMap = new Map<string, { name: string; count: number }>();
+  const assigneeMap = new Map<string, { name: string; isAgent: boolean; count: number }>();
   let unassigned = 0;
   for (const t of tasks) {
     if (!t.assignee) {
@@ -67,11 +68,12 @@ export function ProjectOverviewTab({ tasks, startDate, endDate, createdAt }: Pro
     else
       assigneeMap.set(t.assignee.id, {
         name: t.assignee.name ?? t.assignee.email,
+        isAgent: t.assignee.kind === "AGENT",
         count: 1,
       });
   }
   const assignees = [...assigneeMap.values()].sort((a, b) => b.count - a.count);
-  if (unassigned > 0) assignees.push({ name: "Unassigned", count: unassigned });
+  if (unassigned > 0) assignees.push({ name: "Unassigned", isAgent: false, count: unassigned });
   const maxAssignee = Math.max(1, ...assignees.map((a) => a.count));
 
   return (
@@ -115,8 +117,11 @@ export function ProjectOverviewTab({ tasks, startDate, endDate, createdAt }: Pro
             <div className="flex flex-col gap-2 text-xs">
               {assignees.map((a) => (
                 <div key={a.name} className="flex items-center gap-2">
-                  <span className="w-24 shrink-0 text-muted-foreground truncate">
-                    {a.name}
+                  <span className="flex w-24 shrink-0 items-center gap-1 text-muted-foreground">
+                    <span className="truncate">{a.name}</span>
+                    {a.isAgent && (
+                      <Badge variant="outline" className="shrink-0">Agent</Badge>
+                    )}
                   </span>
                   <span className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                     <span

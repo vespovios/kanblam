@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { ProjectStatusBadge } from "./project-status-badge";
 import { formatShortDate } from "@/lib/dates/format";
 
@@ -14,7 +15,7 @@ interface Project {
   startDate: Date | null;
   endDate: Date | null;
   status: { name: string; color: string };
-  projectLead: { name: string | null; email: string } | null;
+  projectLead: { name: string | null; email: string; kind: "HUMAN" | "AGENT" } | null;
   _count: { tasks: number };
 }
 
@@ -63,7 +64,12 @@ export function ProjectsList({ projects }: { projects: Project[] }) {
               </Link>
             </TableCell>
             <TableCell>{p.clientName ?? "—"}</TableCell>
-            <TableCell>{p.projectLead?.name ?? p.projectLead?.email ?? "—"}</TableCell>
+            <TableCell>
+              {p.projectLead?.name ?? p.projectLead?.email ?? "—"}
+              {p.projectLead?.kind === "AGENT" && (
+                <Badge variant="outline" className="ml-1.5">Agent</Badge>
+              )}
+            </TableCell>
             <TableCell>
               <ProjectStatusBadge status={p.status} />
             </TableCell>
