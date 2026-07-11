@@ -9,7 +9,7 @@ export const TASK_INCLUDE = {
   priority: true,
   kanbanStage: true,
   project: { select: { id: true, name: true, code: true } },
-  assignee: { select: { id: true, name: true, email: true } },
+  assignee: { select: { id: true, name: true, email: true, kind: true } },
   tags: { select: { id: true, name: true, color: true } },
   subtasks: {
     select: { id: true, title: true, completed: true, position: true },

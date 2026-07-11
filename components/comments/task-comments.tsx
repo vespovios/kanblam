@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 
 /** Comments panel inside the task drawer. Self-contained: lazy-loads on
  *  mount, posts/deletes through the internal session routes, and needs no
@@ -13,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 interface CommentItem {
   id: string;
   body: string;
-  author: { id: string; name: string | null } | null;
+  author: { id: string; name: string | null; kind: "HUMAN" | "AGENT" } | null;
   createdAt: string;
   canDelete: boolean;
 }
@@ -88,6 +89,9 @@ export function TaskComments({ taskId, readOnly = false }: Props) {
               <div className="mb-0.5 flex items-baseline justify-between gap-2">
                 <span className="text-xs font-semibold">
                   {c.author?.name ?? (c.author ? "Unnamed" : "Former member")}
+                  {c.author?.kind === "AGENT" && (
+                    <Badge variant="outline" className="ml-1.5">Agent</Badge>
+                  )}
                 </span>
                 <span className="shrink-0 text-[11px] text-muted-foreground">
                   {fmtWhen(c.createdAt)}

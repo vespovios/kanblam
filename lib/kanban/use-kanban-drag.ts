@@ -27,7 +27,7 @@ interface Params {
   tasksState: TaskRow[];
   setTasksState: React.Dispatch<React.SetStateAction<TaskRow[]>>;
   stages: KanbanStage[];
-  members: { id: string; name: string | null; email: string }[];
+  members: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" }[];
   lane: LaneAxis;
   cells: Map<string, BoardCard[]> | null;
 }

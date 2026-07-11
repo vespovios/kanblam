@@ -85,7 +85,7 @@ export default async function CalendarPage({ searchParams }: Props) {
         include: {
           project: { select: { id: true, name: true, code: true } },
           priority: { select: { id: true, name: true, color: true, order: true } },
-          assignee: { select: { id: true, name: true, email: true } },
+          assignee: { select: { id: true, name: true, email: true, kind: true } },
           kanbanStage: { select: { id: true, name: true, color: true, isTerminal: true } },
           tags: { select: { id: true, name: true, color: true } },
           subtasks: {

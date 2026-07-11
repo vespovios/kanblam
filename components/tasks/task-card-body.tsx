@@ -45,8 +45,11 @@ export function TaskCardBody({ task }: { task: KanbanTaskCard }) {
           {task.priority.name}
         </Badge>
         {task.assignee && (
-          <span className="text-xs text-muted-foreground truncate max-w-[8rem]">
-            {task.assignee.name ?? task.assignee.email}
+          <span className="flex items-center gap-1 min-w-0 max-w-[9rem] text-xs text-muted-foreground">
+            <span className="truncate">{task.assignee.name ?? task.assignee.email}</span>
+            {task.assignee.kind === "AGENT" && (
+              <Badge variant="outline" className="shrink-0">Agent</Badge>
+            )}
           </span>
         )}
       </div>

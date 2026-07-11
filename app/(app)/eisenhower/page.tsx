@@ -58,7 +58,7 @@ export default async function EisenhowerPage({ searchParams }: Props) {
     name: t.name,
     project: { id: t.project.id, code: t.project.code, name: t.project.name },
     assignee: t.assignee
-      ? { id: t.assignee.id, name: t.assignee.name, email: t.assignee.email }
+      ? { id: t.assignee.id, name: t.assignee.name, email: t.assignee.email, kind: t.assignee.kind }
       : null,
     priority: { id: t.priority.id, name: t.priority.name, color: t.priority.color },
     tags: t.tags,

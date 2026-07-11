@@ -28,7 +28,7 @@ export interface CalendarTask {
   name: string;
   description: string | null;
   project: { id: string; name: string; code: string };
-  assignee: { id: string; name: string | null; email: string } | null;
+  assignee: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" } | null;
   priority: { id: string; name: string; color: string; order: number };
   kanbanStage: { id: string; name: string; color: string; isTerminal: boolean };
   tags: { id: string; name: string; color: string }[];
@@ -55,7 +55,7 @@ interface Props {
   holidays: CalendarHoliday[];
   workingDays: number[];
   projects: { id: string; name: string; code: string }[];
-  members: { id: string; name: string | null; email: string }[];
+  members: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" }[];
   priorities: { id: string; name: string; order: number }[];
   kanbanStages: { id: string; name: string }[];
   /** All workspace tags + usage count, threaded to drawer + create dialog. */

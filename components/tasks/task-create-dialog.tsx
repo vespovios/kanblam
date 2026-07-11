@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,7 +39,7 @@ interface Props {
   projects: { id: string; name: string; code: string }[];
   priorities: { id: string; name: string }[];
   kanbanStages: { id: string; name: string }[];
-  members: { id: string; name: string | null; email: string }[];
+  members: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" }[];
   /** All workspace tags + usage count, for the TagPicker dropdown. */
   allTags: (TagLite & { _count: { tasks: number } })[];
   /** Current user id — used as the default assignee for new tasks. */
@@ -308,7 +309,12 @@ export function TaskCreateDialog({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {members.map((m) => (<SelectItem key={m.id} value={m.id}>{m.name ?? m.email}</SelectItem>))}
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name ?? m.email}
+                      {m.kind === "AGENT" && <Badge variant="outline" className="ml-2">Agent</Badge>}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

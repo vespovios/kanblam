@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { formatShortDate } from "@/lib/dates/format";
 import { PendingInvitesTable } from "./pending-invites-table";
 
@@ -14,6 +15,7 @@ interface Member {
   email: string;
   name: string | null;
   role: "ADMIN" | "MEMBER";
+  kind: "HUMAN" | "AGENT";
   createdAt: Date;
 }
 
@@ -39,8 +41,13 @@ export function TeamList({ members, pendingInvites }: TeamListProps) {
           <TableBody>
             {members.map((m) => (
               <TableRow key={m.id}>
-                <TableCell>{m.name ?? "—"}</TableCell>
-                <TableCell>{m.email}</TableCell>
+                <TableCell>
+                  {m.name ?? "—"}
+                  {m.kind === "AGENT" && (
+                    <Badge variant="outline" className="ml-2">Agent</Badge>
+                  )}
+                </TableCell>
+                <TableCell>{m.kind === "AGENT" ? "—" : m.email}</TableCell>
                 <TableCell>{m.role}</TableCell>
                 <TableCell>{formatShortDate(m.createdAt)}</TableCell>
               </TableRow>

@@ -8,7 +8,7 @@ interface Props {
   projectId: string;
   workspaceId: string;
   currentUserId: string;
-  members: { id: string; name: string | null; email: string }[];
+  members: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" }[];
   allTags: (TagLite & { _count: { tasks: number } })[];
   tagIds: string[];
   /** Mirrors the global "Hide completed" filter — drops terminal-stage tasks. */
