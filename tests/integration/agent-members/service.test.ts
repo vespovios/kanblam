@@ -88,5 +88,14 @@ describe("removeAgentMember", () => {
   it("refuses humans and cross-workspace ids", async () => {
     expect(await removeAgentMember(seed.workspaceId, seed.memberId)).toBe(false);
     expect(await prisma.user.count({ where: { id: seed.memberId } })).toBe(1);
+
+    // Cross-workspace: an agent in workspace A is unreachable via workspace B.
+    const other = await prisma.workspace.create({ data: { name: "Other" } });
+    const agent = await createAgentMember(seed.workspaceId, { name: "Homed" });
+    expect(await removeAgentMember(other.id, agent.id)).toBe(false);
+    expect(await prisma.user.count({ where: { id: agent.id } })).toBe(1);
+    expect(await renameAgentMember(other.id, agent.id, { name: "X" })).toBe(false);
+    const row = await prisma.user.findUniqueOrThrow({ where: { id: agent.id } });
+    expect(row.name).toBe("Homed");
   });
 });
