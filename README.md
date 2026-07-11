@@ -24,8 +24,8 @@ integrations, and AI agents welcome.
 The hosted version is the same code as this repo, kept running and
 backed up so you don't have to think about servers. Currently in
 **closed beta** — drop your email on the landing page to be notified at
-launch. After launch, hosted KanBlam will be **$9.99/year** for
-unlimited use, with a 14-day free trial.
+launch. Pricing is simple annual plans with a founding-user discount —
+see [kanblam.com](https://kanblam.com) for current plans.
 
 If "I'll handle the server myself, thanks" sounds like you — read on.
 
