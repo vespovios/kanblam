@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -67,8 +67,20 @@ export function AgentMembersSection({ agents }: Props) {
   // revoking that same token clears its show-once box too.
   const [freshTokens, setFreshTokens] = useState<Record<string, { raw: string; id: string }>>({});
 
-  // Token revoke (two-click confirm)
+  // Token revoke (two-click confirm + in-flight guard so a confirm click
+  // mid-flight can't double-fire the DELETE)
   const [confirmRevokeTokenId, setConfirmRevokeTokenId] = useState<string | null>(null);
+  const [revokingTokenId, setRevokingTokenId] = useState<string | null>(null);
+
+  // a11y: when a fresh token appears, move focus to its Copy button so
+  // screen readers land on the one-time credential box.
+  const copyBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [justMintedAgentId, setJustMintedAgentId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!justMintedAgentId) return;
+    copyBtnRefs.current[justMintedAgentId]?.focus();
+    setJustMintedAgentId(null);
+  }, [justMintedAgentId]);
 
   function toggleMintScope(scope: ApiTokenScope) {
     setMintScopes((prev) => (prev.includes(scope) ? prev.filter((s) => s !== scope) : [...prev, scope]));
@@ -79,19 +91,24 @@ export function AgentMembersSection({ agents }: Props) {
     if (!name.trim()) return;
     setCreating(true);
     setCreateError(null);
-    const res = await fetch("/api/settings/agent-members", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: name.trim() }),
-    });
-    setCreating(false);
-    const body = await res.json().catch(() => null);
-    if (!res.ok) {
-      setCreateError(body?.error ?? "Failed to create agent");
-      return;
+    try {
+      const res = await fetch("/api/settings/agent-members", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        setCreateError(body?.error ?? "Failed to create agent");
+        return;
+      }
+      setName("");
+      router.refresh();
+    } catch {
+      setCreateError("Network error — try again.");
+    } finally {
+      setCreating(false);
     }
-    setName("");
-    router.refresh();
   }
 
   function startEdit(agent: AgentMemberRow) {
@@ -105,21 +122,26 @@ export function AgentMembersSection({ agents }: Props) {
   }
 
   async function saveEdit(id: string) {
-    if (!editName.trim()) return;
+    if (!editName.trim() || renaming) return;
     setRenaming(true);
-    const res = await fetch(`/api/settings/agent-members/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editName.trim() }),
-    });
-    setRenaming(false);
-    if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      toast.error(body?.error ?? "Failed to rename agent");
-      return;
+    try {
+      const res = await fetch(`/api/settings/agent-members/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: editName.trim() }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error ?? "Failed to rename agent");
+        return;
+      }
+      cancelEdit();
+      router.refresh();
+    } catch {
+      toast.error("Network error — try again.");
+    } finally {
+      setRenaming(false);
     }
-    cancelEdit();
-    router.refresh();
   }
 
   async function onRemove(id: string) {
@@ -129,21 +151,26 @@ export function AgentMembersSection({ agents }: Props) {
     }
     setConfirmRemoveId(null);
     setRemovingId(id);
-    const res = await fetch(`/api/settings/agent-members/${id}`, { method: "DELETE" });
-    setRemovingId(null);
-    if (!res.ok) {
-      const body = await res.json().catch(() => null);
-      toast.error(body?.error ?? "Failed to remove agent");
-      return;
+    try {
+      const res = await fetch(`/api/settings/agent-members/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        toast.error(body?.error ?? "Failed to remove agent");
+        return;
+      }
+      toast.success("Agent removed");
+      setFreshTokens((prev) => {
+        if (!(id in prev)) return prev;
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      router.refresh();
+    } catch {
+      toast.error("Network error — try again.");
+    } finally {
+      setRemovingId(null);
     }
-    toast.success("Agent removed");
-    setFreshTokens((prev) => {
-      if (!(id in prev)) return prev;
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
-    router.refresh();
   }
 
   function openMintForm(agentId: string) {
@@ -158,22 +185,28 @@ export function AgentMembersSection({ agents }: Props) {
     if (!mintName.trim() || mintScopes.length === 0) return;
     setMinting(true);
     setMintError(null);
-    const res = await fetch(`/api/settings/agent-members/${agentId}/tokens`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: mintName.trim(), scopes: mintScopes }),
-    });
-    setMinting(false);
-    const body = await res.json().catch(() => null);
-    if (!res.ok) {
-      setMintError(body?.error ?? "Failed to create token");
-      return;
+    try {
+      const res = await fetch(`/api/settings/agent-members/${agentId}/tokens`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: mintName.trim(), scopes: mintScopes }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok || !body?.token || !body?.record?.id) {
+        setMintError(body?.error ?? "Failed to create token");
+        return;
+      }
+      setFreshTokens((prev) => ({ ...prev, [agentId]: { raw: body.token, id: body.record.id } }));
+      setJustMintedAgentId(agentId);
+      setMintForId(null);
+      setMintName("");
+      setMintScopes(["read"]);
+      router.refresh();
+    } catch {
+      setMintError("Network error — try again.");
+    } finally {
+      setMinting(false);
     }
-    setFreshTokens((prev) => ({ ...prev, [agentId]: { raw: body.token, id: body.record.id } }));
-    setMintForId(null);
-    setMintName("");
-    setMintScopes(["read"]);
-    router.refresh();
   }
 
   async function onRevokeToken(agentId: string, tokenId: string) {
@@ -181,22 +214,30 @@ export function AgentMembersSection({ agents }: Props) {
       setConfirmRevokeTokenId(tokenId);
       return;
     }
+    if (revokingTokenId) return;
     setConfirmRevokeTokenId(null);
-    const res = await fetch(`/api/settings/agent-members/${agentId}/tokens/${tokenId}`, {
-      method: "DELETE",
-    });
-    if (!res.ok) {
-      toast.error("Failed to revoke token");
-      return;
+    setRevokingTokenId(tokenId);
+    try {
+      const res = await fetch(`/api/settings/agent-members/${agentId}/tokens/${tokenId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        toast.error("Failed to revoke token");
+        return;
+      }
+      toast.success("Token revoked");
+      setFreshTokens((prev) => {
+        if (prev[agentId]?.id !== tokenId) return prev;
+        const next = { ...prev };
+        delete next[agentId];
+        return next;
+      });
+      router.refresh();
+    } catch {
+      toast.error("Network error — try again.");
+    } finally {
+      setRevokingTokenId(null);
     }
-    toast.success("Token revoked");
-    setFreshTokens((prev) => {
-      if (prev[agentId]?.id !== tokenId) return prev;
-      const next = { ...prev };
-      delete next[agentId];
-      return next;
-    });
-    router.refresh();
   }
 
   async function copyFreshToken(agentId: string) {
@@ -265,6 +306,14 @@ export function AgentMembersSection({ agents }: Props) {
                         <Input
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              saveEdit(agent.id);
+                            } else if (e.key === "Escape") {
+                              cancelEdit();
+                            }
+                          }}
                           maxLength={100}
                           className="h-8 max-w-64"
                           autoFocus
@@ -318,7 +367,10 @@ export function AgentMembersSection({ agents }: Props) {
 
                 {/* show-once box for a freshly minted token */}
                 {fresh && (
-                  <div className="space-y-2 rounded-md border border-primary/40 bg-primary/5 p-3">
+                  <div
+                    role="status"
+                    className="space-y-2 rounded-md border border-primary/40 bg-primary/5 p-3"
+                  >
                     <p className="text-sm font-medium">
                       Copy your new token now — it won&apos;t be shown again.
                     </p>
@@ -326,7 +378,14 @@ export function AgentMembersSection({ agents }: Props) {
                       <code className="min-w-0 flex-1 truncate rounded bg-muted px-2 py-1.5 font-mono text-xs">
                         {fresh.raw}
                       </code>
-                      <Button type="button" size="sm" onClick={() => copyFreshToken(agent.id)}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        ref={(el: HTMLButtonElement | null) => {
+                          copyBtnRefs.current[agent.id] = el;
+                        }}
+                        onClick={() => copyFreshToken(agent.id)}
+                      >
                         Copy
                       </Button>
                       <Button
@@ -409,6 +468,7 @@ export function AgentMembersSection({ agents }: Props) {
                           variant={confirmRevokeTokenId === t.id ? "destructive" : "outline"}
                           onClick={() => onRevokeToken(agent.id, t.id)}
                           onBlur={() => setConfirmRevokeTokenId(null)}
+                          disabled={revokingTokenId === t.id}
                         >
                           {confirmRevokeTokenId === t.id ? "Confirm revoke" : "Revoke"}
                         </Button>
