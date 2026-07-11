@@ -20,10 +20,11 @@ every task it moves and comment it writes is attributed to the agent member.
 ## 3. Point your agent at the board
 
 Any agent that can make HTTP calls works. The loop below lists the agent's
-assigned tasks, moves one to In Progress, and reports back with a comment:
+assigned tasks, moves one to In Progress, and reports back with a comment —
+set `KB_AGENT_NAME` to the name you gave the agent in step 1:
 
 ```js
-// agent-loop.mjs — run with: KB_TOKEN=kb_... KB_URL=https://your-instance node agent-loop.mjs
+// agent-loop.mjs — run with: KB_TOKEN=kb_... KB_URL=https://your-instance KB_AGENT_NAME="Flight Computer" node agent-loop.mjs
 const API = `${process.env.KB_URL ?? "https://your-instance"}/api/v1`;
 const TOKEN = process.env.KB_TOKEN;
 const AGENT_NAME = process.env.KB_AGENT_NAME; // the name you gave it in Settings → Members
