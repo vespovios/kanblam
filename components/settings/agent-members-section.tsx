@@ -33,15 +33,14 @@ export interface AgentMemberRow {
 }
 
 interface Props {
-  initialAgents: AgentMemberRow[];
+  agents: AgentMemberRow[];
 }
 
 const fmt = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
-export function AgentMembersSection({ initialAgents }: Props) {
+export function AgentMembersSection({ agents }: Props) {
   const router = useRouter();
-  const [agents, setAgents] = useState<AgentMemberRow[]>(initialAgents);
 
   // Create form
   const [name, setName] = useState("");
@@ -91,10 +90,6 @@ export function AgentMembersSection({ initialAgents }: Props) {
       setCreateError(body?.error ?? "Failed to create agent");
       return;
     }
-    setAgents((prev) => [
-      ...prev,
-      { id: body.agent.id, name: body.agent.name, createdAt: body.agent.createdAt, apiTokens: [] },
-    ]);
     setName("");
     router.refresh();
   }
@@ -123,7 +118,6 @@ export function AgentMembersSection({ initialAgents }: Props) {
       toast.error(body?.error ?? "Failed to rename agent");
       return;
     }
-    setAgents((prev) => prev.map((a) => (a.id === id ? { ...a, name: editName.trim() } : a)));
     cancelEdit();
     router.refresh();
   }
@@ -143,7 +137,6 @@ export function AgentMembersSection({ initialAgents }: Props) {
       return;
     }
     toast.success("Agent removed");
-    setAgents((prev) => prev.filter((a) => a.id !== id));
     setFreshTokens((prev) => {
       if (!(id in prev)) return prev;
       const next = { ...prev };
@@ -176,9 +169,6 @@ export function AgentMembersSection({ initialAgents }: Props) {
       setMintError(body?.error ?? "Failed to create token");
       return;
     }
-    setAgents((prev) =>
-      prev.map((a) => (a.id === agentId ? { ...a, apiTokens: [body.record, ...a.apiTokens] } : a)),
-    );
     setFreshTokens((prev) => ({ ...prev, [agentId]: { raw: body.token, id: body.record.id } }));
     setMintForId(null);
     setMintName("");
@@ -200,14 +190,6 @@ export function AgentMembersSection({ initialAgents }: Props) {
       return;
     }
     toast.success("Token revoked");
-    const revokedAt = new Date().toISOString();
-    setAgents((prev) =>
-      prev.map((a) =>
-        a.id === agentId
-          ? { ...a, apiTokens: a.apiTokens.map((t) => (t.id === tokenId ? { ...t, revokedAt } : t)) }
-          : a,
-      ),
-    );
     setFreshTokens((prev) => {
       if (prev[agentId]?.id !== tokenId) return prev;
       const next = { ...prev };

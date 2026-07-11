@@ -149,7 +149,7 @@ export default async function SettingsPage() {
           {members && pendingInvites && (
             <TeamList members={members} pendingInvites={pendingInvites} />
           )}
-          <AgentMembersSection initialAgents={agentsSerialized} />
+          <AgentMembersSection agents={agentsSerialized} />
           <WorkingDaysForm initial={workspace.workingDays} />
           <HolidaysSection
             initial={holidaysSerialized}
