@@ -39,6 +39,11 @@ enum UserRole {
   MEMBER
 }
 
+enum UserKind {
+  HUMAN
+  AGENT
+}
+
 enum Frequency {
   DAILY
   WEEKLY
@@ -52,6 +57,7 @@ model User {
   name         String?
   passwordHash String?
   role         UserRole @default(MEMBER)
+  kind         UserKind @default(HUMAN)
   createdAt    DateTime @default(now())
 
   workspace                  Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
