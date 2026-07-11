@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterAll } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, afterAll } from "vitest";
 import { PrismaClient } from "@prisma/client";
 import { setupTestWorkspace, type SeededWorkspace } from "@/tests/integration/helpers/workspace";
 import {
@@ -18,6 +18,11 @@ beforeEach(async () => {
 afterAll(() => prisma.$disconnect());
 
 describe("createAgentMember", () => {
+  // Local hygiene: don't leak the cap override into other tests/files.
+  afterEach(() => {
+    delete process.env.AGENT_MEMBERS_MAX;
+  });
+
   it("creates AGENT/MEMBER with synthetic internal email and no password", async () => {
     const agent = await createAgentMember(seed.workspaceId, { name: "Flight Computer" });
     const row = await prisma.user.findUniqueOrThrow({ where: { id: agent.id } });

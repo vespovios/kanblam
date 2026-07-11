@@ -23,6 +23,7 @@ export async function createAgentMember(
   input: CreateAgentMemberInput,
 ) {
   const max = agentMembersMax();
+  // Best-effort cap: count-then-create races under concurrency (same as createApiToken's cap) — acceptable for an admin-driven guardrail.
   const count = await prisma.user.count({ where: { workspaceId, kind: "AGENT" } });
   if (count >= max) {
     throw new Error(`Agent member limit reached (${max}).`);
@@ -54,8 +55,14 @@ export async function renameAgentMember(
 }
 
 /**
- * Deletes the agent user. FK actions do the rest: ApiToken Cascade;
- * Task.assignee / Project.projectLead / Comment.author SetNull.
+ * Deletes the agent user. FK actions on User do the rest:
+ * ApiToken + RecurringTaskTemplate.createdBy + Invite.invitedBy + Account +
+ * Session → Cascade;
+ * Task.assignee / Project.projectLead / Comment.author / RecurringTaskTemplate.assignee → SetNull.
+ * Agents currently cannot create templates or invites (no /api/v1 surface, no
+ * session — Account/Session Cascades are likewise inert since agents never log
+ * in), so only the ApiToken Cascade fires in practice — revisit if agent
+ * capabilities grow.
  * kind: "AGENT" in the where-clause makes humans unreachable here.
  */
 export async function removeAgentMember(
