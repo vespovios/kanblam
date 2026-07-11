@@ -41,6 +41,7 @@ const NAV: NavSection[] = [
     items: [
       { href: "/docs/api-quickstart", label: "Quickstart" },
       { href: "/docs/api", label: "Reference" },
+      { href: "/docs/agents", label: "Bring your agent" },
     ],
   },
   {

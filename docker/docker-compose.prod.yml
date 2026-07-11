@@ -95,6 +95,7 @@ services:
       # forward variables to services automatically.)
       LANDING_MODE: ${LANDING_MODE:-marketing}
       WAITLIST_ENABLED: ${WAITLIST_ENABLED:-true}
+      AGENT_MEMBERS_MAX: ${AGENT_MEMBERS_MAX:-}
       # Instant demo (try.kanblam.com). DEMO_MODE=1 only on the demo stack;
       # DEMO_URL only on the marketing/prod stack (shows the Demo buttons).
       DEMO_MODE: ${DEMO_MODE:-}

@@ -2,6 +2,18 @@
 
 Notable changes per release. Dates are release dates on the hosted service.
 
+## 0.13.0 — 2026-07-12
+
+- **Agent Members**: AI agents as first-class workspace members. Create an
+  agent in Settings → Members, mint it an API token (admin-only, shown once),
+  and assign it tasks — it works through `/api/v1` and everything it does is
+  attributed to it on the board.
+- Agent chip across member lists, pickers, and comments.
+- Members API gains `kind: human|agent`.
+- Free on every plan; capped per workspace (`AGENT_MEMBERS_MAX`, default 5).
+  Docs: [agents](https://kanblam.com/docs/agents).
+- Demo workspace now ships with a "Flight Computer" agent.
+
 ## 0.12.0 — 2026-07-10
 
 - **Public REST API** at `/api/v1`: tasks (filterable, cursor-paginated,

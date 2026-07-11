@@ -6,7 +6,7 @@
  * half-demo never lingers.
  */
 
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
 import {
@@ -14,6 +14,7 @@ import {
   DEFAULT_PRIORITIES,
   DEFAULT_KANBAN_STAGES,
 } from "@/prisma/seedWorkspace";
+import { AGENT_EMAIL_DOMAIN } from "@/lib/validators/agent-member";
 import { generatePetname } from "./petname";
 import { seedStratosData } from "./seed-stratos";
 
@@ -45,7 +46,7 @@ export async function provisionDemoWorkspace(): Promise<DemoCredentials> {
   const password = randomBytes(12).toString("base64url");
   const passwordHash = await bcrypt.hash(password, 10);
 
-  const { workspaceId, userId } = await prisma.$transaction(async (tx) => {
+  const { workspaceId, userId, agentId } = await prisma.$transaction(async (tx) => {
     const ws = await tx.workspace.create({
       data: { name: DEMO_WORKSPACE_NAME, isDemo: true },
     });
@@ -58,6 +59,19 @@ export async function provisionDemoWorkspace(): Promise<DemoCredentials> {
         role: "ADMIN",
       },
     });
+    // Flight Computer: a demo agent member so visitors see Agent Members in
+    // the seeded workspace. Created directly on the tx (not via
+    // createAgentMember, which uses the module-level prisma client and
+    // would run outside this transaction) — mirrors the admin user above.
+    const agent = await tx.user.create({
+      data: {
+        workspaceId: ws.id,
+        email: `agent-${randomUUID()}@${AGENT_EMAIL_DOMAIN}`,
+        name: "Flight Computer",
+        kind: "AGENT",
+        role: "MEMBER",
+      },
+    });
     await tx.status.createMany({
       data: DEFAULT_STATUSES.map((s) => ({ ...s, workspaceId: ws.id })),
     });
@@ -67,11 +81,11 @@ export async function provisionDemoWorkspace(): Promise<DemoCredentials> {
     await tx.kanbanStage.createMany({
       data: DEFAULT_KANBAN_STAGES.map((k) => ({ ...k, workspaceId: ws.id })),
     });
-    return { workspaceId: ws.id, userId: user.id };
+    return { workspaceId: ws.id, userId: user.id, agentId: agent.id };
   });
 
   try {
-    await seedStratosData(workspaceId, userId);
+    await seedStratosData(workspaceId, userId, agentId);
   } catch (err) {
     // Roll the whole tenant back — cascade removes user, projects, tasks…
     await prisma.workspace.delete({ where: { id: workspaceId } }).catch(() => {});

@@ -16,6 +16,7 @@ import { createTask } from "@/lib/tasks/service";
 import { createTag } from "@/lib/tags/service";
 import { updateSubtask } from "@/lib/subtasks/service";
 import { createTemplate, generateInstancesForWorkspace } from "@/lib/recurring/service";
+import { createComment } from "@/lib/comments/service";
 
 const iso = (offsetDays: number): string => {
   const d = new Date();
@@ -48,6 +49,9 @@ interface DemoTask {
   subs?: [title: string, done: boolean][];
   desc?: string;
   notes?: string;
+  /** Assign to the Flight Computer agent member instead of the human admin
+   *  (only when the workspace has one — see seedStratosData's agentId param). */
+  agent?: boolean;
 }
 
 const TASKS: DemoTask[] = [
@@ -64,10 +68,16 @@ const TASKS: DemoTask[] = [
   { n: "Design tracker PCB", p: "PAY", s: "In Progress", pr: "Very High", imp: true, urg: true, start: -10, due: 3, tags: ["electronics"],
     subs: [["Finish schematic review", true], ["Route RF section", true], ["Ground pour + DRC pass", false], ["Order boards from fab", false]],
     desc: "KiCad board: GPS + radio tracker with BME280 and battery monitor. Keep mass under 45 g including the u.FL antenna. RF section needs a proper ground pour — no traces under the GPS patch." },
-  { n: "Write telemetry firmware", p: "PAY", s: "In Progress", pr: "High", imp: true, start: -7, due: 9, tags: ["software", "electronics"],
+  // "APRS net check-in" and "Charge & log battery bank" (the two tasks named
+  // in the Task 12 spec) only exist as recurring templates below, not as
+  // TASKS entries — so per the fallback rule we mark the two closest
+  // telemetry/logging-flavored PAY tasks instead: this one literally logs
+  // sensor frames to SD card, and the APRS tracker assembly below is the
+  // clearest thematic match to the APRS net check-in template.
+  { n: "Write telemetry firmware", p: "PAY", s: "In Progress", pr: "High", imp: true, start: -7, due: 9, tags: ["software", "electronics"], agent: true,
     subs: [["GPS NMEA parser", true], ["Sensor sampling loop", false], ["APRS packet encoder", false], ["Low-power sleep mode", false]],
     desc: "Target: one position packet every 60 s, sensor frame every 10 s to SD card. Watchdog reset if no GPS fix for 5 minutes." },
-  { n: "Assemble APRS tracker module", p: "PAY", s: "Ideas", pr: "High", imp: true, due: 10, tags: ["ham-radio", "electronics"] },
+  { n: "Assemble APRS tracker module", p: "PAY", s: "Ideas", pr: "High", imp: true, due: 10, tags: ["ham-radio", "electronics"], agent: true },
   { n: "Tune 2 m dipole antenna", p: "PAY", s: "In Progress", pr: "Medium", imp: true, due: 0, tags: ["ham-radio"],
     desc: "Target SWR < 1.5 across the APRS segment with the antenna analyser. Trim both legs equally — 5 mm at a time." },
   { n: "Cold-soak test payload at −40 °C", p: "PAY", s: "Ideas", pr: "Medium", imp: true, due: 16, tags: ["testing"],
@@ -108,8 +118,15 @@ const TASKS: DemoTask[] = [
 ];
 
 /** Populate a freshly provisioned demo workspace. Assumes default
- *  statuses/priorities/stages already exist (provisionDemoWorkspace). */
-export async function seedStratosData(workspaceId: string, userId: string): Promise<void> {
+ *  statuses/priorities/stages already exist (provisionDemoWorkspace).
+ *  agentId, when provided, is the Flight Computer agent member — a couple
+ *  of PAY tasks (flagged `agent: true` in TASKS) are assigned to it and get
+ *  a status-update comment so demo visitors see Agent Members in action. */
+export async function seedStratosData(
+  workspaceId: string,
+  userId: string,
+  agentId?: string,
+): Promise<void> {
   const [statuses, priorities, stages] = await Promise.all([
     prisma.status.findMany({ where: { workspaceId } }),
     prisma.priority.findMany({ where: { workspaceId } }),
@@ -146,13 +163,14 @@ export async function seedStratosData(workspaceId: string, userId: string): Prom
   };
 
   // Tasks (+ completed-subtask flags via the service so parent progress recomputes)
+  const taskIdByName: Record<string, string> = {};
   for (const t of TASKS) {
     const task = await createTask(workspaceId, {
       projectId: projectIds[t.p],
       name: t.n,
       priorityId: PRIO[t.pr],
       kanbanStageId: STAGE[t.s],
-      assigneeId: userId,
+      assigneeId: t.agent && agentId ? agentId : userId,
       isImportant: !!t.imp,
       isUrgent: !!t.urg,
       ...(t.start !== undefined && { startDate: iso(t.start) }),
@@ -164,6 +182,7 @@ export async function seedStratosData(workspaceId: string, userId: string): Prom
       ...(t.tags && { tagIds: t.tags.map((x) => tagIds[x]) }),
     });
     if (!task) throw new Error(`demo seed: task creation failed for "${t.n}"`);
+    taskIdByName[t.n] = task.id;
     if (t.subs?.some(([, done]) => done)) {
       const doneTitles = new Set(t.subs.filter(([, done]) => done).map(([title]) => title));
       for (const sub of task.subtasks ?? []) {
@@ -171,6 +190,20 @@ export async function seedStratosData(workspaceId: string, userId: string): Prom
           await updateSubtask(workspaceId, sub.id, { completed: true });
         }
       }
+    }
+  }
+
+  // Flight Computer status-update comments on its two assigned tasks, so
+  // the agent's presence shows up in the task drawer, not just the assignee
+  // avatar.
+  if (agentId) {
+    const agentComments: [string, string][] = [
+      ["Write telemetry firmware", "Logged 24h of bench telemetry to SD — GPS fix rate 98%, no watchdog resets. Sensor sampling loop next."],
+      ["Assemble APRS tracker module", "Checked into the APRS net at 19:00 UTC — packet path clean, no action needed."],
+    ];
+    for (const [taskName, body] of agentComments) {
+      const comment = await createComment(workspaceId, taskIdByName[taskName], agentId, { body });
+      if (!comment) throw new Error(`demo seed: agent comment failed for "${taskName}"`);
     }
   }
 
