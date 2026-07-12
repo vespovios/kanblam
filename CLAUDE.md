@@ -55,4 +55,7 @@ v5. Single self-contained deploy — Docker Compose behind a Cloudflare Tunnel.
   Don't pin `turbopack.root` — `__dirname` in the transpiled config resolves
   wrong and breaks the import map.
 - Docs/marketing screenshots (`public/images/docs/`) come from the demo seed
-  dataset — regenerate with `scripts/demo/` (headers document usage).
+  dataset — regenerate with `scripts/demo/` (headers document usage). Run
+  against a **local dev instance + scratch workspace** (the scripts' default):
+  the seed WIPES the target workspace, so never point it at a deployment
+  holding real data.

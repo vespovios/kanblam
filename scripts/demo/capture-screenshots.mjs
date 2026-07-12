@@ -10,11 +10,13 @@
  * never fires because of the app's SSE realtime stream.
  * Output: ./out/*.png. NEVER ship settings.png — it shows the account email.
  * Needs playwright-core + a chromium binary via CHROMIUM_BIN.
+ * Runs against a local dev instance seeded by seed-stratos.mjs (KB_BASE
+ * defaults to localhost, matching the seed script's safe default).
  */
 import { chromium } from "playwright-core";
 import { mkdirSync } from "node:fs";
 
-const BASE = process.env.KB_BASE || "https://kanblam.com";
+const BASE = process.env.KB_BASE || "http://localhost:3000";
 const EMAIL = process.env.KB_EMAIL;
 const PASS = process.env.KB_PASS;
 const PART = process.env.PART || "1";
