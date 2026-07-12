@@ -5,10 +5,16 @@
  * form in a headless browser (same-origin cookies).
  *
  * Usage: KB_EMAIL=... KB_PASS=... node seed-stratos.mjs [--wipe-only]
+ *
+ * ⚠️ THE WIPE IS REAL. This deletes every project in the target account's
+ * workspace before seeding. Docs/marketing refreshes run against a LOCAL dev
+ * instance with a scratch workspace — never point KB_BASE at a deployment
+ * whose workspace holds real data. The default is localhost on purpose;
+ * a remote target must be set explicitly.
  */
 import { chromium } from "playwright-core";
 
-const BASE = process.env.KB_BASE || "https://kanblam.com";
+const BASE = process.env.KB_BASE || "http://localhost:3000";
 const EMAIL = process.env.KB_EMAIL;
 const PASS = process.env.KB_PASS;
 if (!EMAIL || !PASS) { console.error("Set KB_EMAIL and KB_PASS"); process.exit(1); }
