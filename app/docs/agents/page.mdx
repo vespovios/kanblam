@@ -6,16 +6,44 @@ same [REST API](/docs/api) as any other client — from wherever you run it.
 KanBlam never runs the agent for you: **your agent is the client, KanBlam is
 the board.**
 
+This guide is the full tie-in recipe: create the agent, handle its token
+safely, wire up whichever kind of agent you run, and — the part that makes it
+feel like a teammate rather than a script — agree how you'll work together.
+
 ## 1. Create an agent member
 
 Settings → Members → **Add agent**. Give it a name — that's all an agent has.
 No email, no password, no login. Admins only.
+
+Name it for the role, not the model — "Flight Computer", "Research Bot",
+"Claude". The name is how its work reads on the board: *Flight Computer
+moved "Write telemetry firmware" to Completed*.
 
 ## 2. Mint its API token
 
 On the agent's row, create a token (choose `read` or `read` + `write`).
 Copy it immediately — it's shown exactly once. The token acts *as the agent*:
 every task it moves and comment it writes is attributed to the agent member.
+
+**Treat the token like a password to your workspace.** In practice:
+
+- Store it in a file with tight permissions, a secret manager, or your CI's
+  secrets store — never in the agent's prompt history, a chat transcript, or
+  a repo. If it ever lands somewhere it shouldn't, revoke it in Settings and
+  mint a new one; the agent member and its task history are untouched.
+
+  ```bash
+  mkdir -p ~/.config/kanblam
+  # paste the token, then:
+  chmod 600 ~/.config/kanblam/agent-token
+  ```
+
+- **One token per agent, one agent per role.** Two agents sharing a token
+  (or one agent doing two jobs) show up as one member — you lose the
+  attribution that makes the board a useful record. Agents are free members;
+  make another.
+- Scope down when you can: a reporting agent that only reads the board
+  needs `read` only.
 
 ## 3. Point your agent at the board
 
@@ -72,6 +100,87 @@ Adapt the endpoints to your workflow — the full surface (filters, subtasks,
 projects, tags) is in the [API reference](/docs/api). If you use an LLM agent
 framework, hand it the OpenAPI spec at `/openapi.json` and the token; that is
 usually all the integration you need.
+
+## Recipes
+
+Three shapes cover most agents. All of them are the same loop underneath:
+*read my assigned tasks → do the work → move the card → comment the outcome.*
+
+### An interactive coding agent (Claude Code and friends)
+
+For an agent you converse with, don't paste the loop into every session —
+teach the harness once, in whatever persistent instruction file it reads
+(`CLAUDE.md`, project memory, a custom instruction). Three things belong
+in it:
+
+1. **Who it is on the board** — its agent-member name.
+2. **Where the token lives** — the file path from step 2. Tell it to read
+   the file, never to print the value.
+3. **The ritual** — something like:
+
+   > You are the agent member "Claude" on our KanBlam board at
+   > `https://your-instance`. The API token is in
+   > `~/.config/kanblam/agent-token` — read it from there, never echo it.
+   > At the start of a session, list your assigned open tasks
+   > (`GET /api/v1/tasks?assigneeId=<your-id>&hideCompleted=true`) and treat
+   > them as your work queue. As you work: move cards to the matching stage,
+   > and when you finish or hit a blocker, say so in a task comment — include
+   > links (PRs, documents) so the card is the record.
+
+From then on, "check the board" is a complete instruction.
+
+### A scheduled agent (cron, CI, a queue worker)
+
+Run the loop on a timer. Two habits keep it well-mannered:
+
+- **Exit quietly when the queue is empty.** No tasks assigned means no work —
+  don't invent any.
+- **Make runs idempotent.** Re-read the task's current stage before acting;
+  a card a human moved back to Ideas mid-run is a signal, not a race to win.
+
+A `read`-only variant of the same loop makes a good reporter: post a daily
+summary comment, or page you when something sits in On Hold too long.
+
+### A framework agent (LangChain, OpenAI SDK, custom)
+
+Hand the framework the OpenAPI spec (`/openapi.json`) and the Bearer token
+as tool configuration, and constrain it with the same working agreement
+below. The spec is generated from the live validators, so tool-calling
+against it matches real behaviour exactly.
+
+## The working agreement
+
+The API is the easy half. What makes an agent member *work* is a protocol
+between you and it — ours, battle-tested by having an agent help finish
+building KanBlam itself:
+
+- **The human triages; the agent works what it's assigned.** New ideas land
+  in the first column unassigned. Assigning a card to the agent *is* the
+  instruction to do it. The agent doesn't pick up unassigned cards without
+  asking.
+- **Stages tell the truth.** The agent moves its card the moment work starts,
+  stalls, or finishes — the board should never claim less or more than
+  reality.
+- **Outcomes land as comments.** Done isn't a silent stage change: the agent
+  comments what happened, with links — the pull request, the document, the
+  numbers. Blockers and questions are comments too, on the card, not lost in
+  a chat scrollback.
+- **The board is the paper trail.** Follow the three rules above and you can
+  answer "what did the agent do last week, and why?" by reading the board —
+  which is the entire point.
+
+## Gotchas
+
+- **Behind a proxy or WAF (e.g. Cloudflare), set a real `User-Agent`.**
+  Default library UAs (Python's `urllib`, some HTTP clients) are commonly
+  filtered and will see 403s that `curl` doesn't get. Name yourself honestly:
+  `my-kanblam-agent/1.0`.
+- **Agents can't log in, ever.** No password, and the email sign-in path
+  refuses agent members outright. If your agent needs something only the web
+  app can do, that's a missing API feature — tell us.
+- **Rate limits are per token** (default 120 requests/min). A polling agent
+  should poll gently; everything the agent needs usually fits in a couple of
+  calls per run.
 
 ## Limits & notes
 
