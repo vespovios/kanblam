@@ -7,6 +7,7 @@ import { RealtimeSync } from "@/components/realtime/realtime-sync";
 import { ReadOnlyProvider } from "@/components/billing/read-only-provider";
 import { ReadOnlyBanner } from "@/components/billing/read-only-banner";
 import { DemoBanner } from "@/components/demo/demo-banner";
+import { ShortcutHelpDialog } from "@/components/app-shell/shortcut-help-dialog";
 import { getWorkspaceAccessLevel } from "@/lib/billing/access";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -74,6 +75,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               allTags={tags}
             />
             <main className="flex-1 p-6">{children}</main>
+            <ShortcutHelpDialog />
             {/* Vikunja-style "this is a demo" warning — DEMO_MODE deployments only */}
             {process.env.DEMO_MODE === "1" && <DemoBanner />}
           </div>
