@@ -276,7 +276,9 @@ export function TaskEditDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-md w-full overflow-y-auto !gap-0 !p-0">
-        <SheetHeader className="border-b !p-3">
+        {/* !pr-12 clears the sheet's absolutely-positioned close button —
+            long task names would otherwise render under the X. */}
+        <SheetHeader className="border-b !p-3 !pr-12">
           <SheetTitle className="leading-tight">{task.name}</SheetTitle>
           <p className="text-xs text-muted-foreground font-mono">{task.project.code} · {task.project.name}</p>
         </SheetHeader>
