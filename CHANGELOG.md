@@ -2,6 +2,20 @@
 
 Notable changes per release. Dates are release dates on the hosted service.
 
+## 0.13.1 — 2026-07-12
+
+- Agent chip now also shows in the assignee filter dropdowns (desktop +
+  mobile) and on kanban assignee swimlane labels.
+- Member dropdowns sort by name (agents no longer ordered by their hidden
+  internal email).
+- Fixed a hydration mismatch on the Settings token dates when the browser
+  locale differed from the server's; dates now always render like
+  "12 Jul 2026".
+- Revoking a personal API token can no longer double-fire from a repeated
+  confirm click.
+- Defense-in-depth: the email sign-in path refuses agent members outright.
+- Landing-page agent screenshot compressed 1.17MB → 446KB.
+
 ## 0.13.0 — 2026-07-12
 
 - **Agent Members**: AI agents as first-class workspace members. Create an

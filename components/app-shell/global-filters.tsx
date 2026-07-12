@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { ChevronDown, X } from "lucide-react";
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { QUADRANT_IDS, QUADRANT_META, type QuadrantId } from "@/lib/eisenhower/quadrants";
 
@@ -24,6 +25,7 @@ interface Member {
   id: string;
   name: string | null;
   email: string;
+  kind: "HUMAN" | "AGENT";
 }
 
 interface Props {
@@ -124,6 +126,7 @@ export function GlobalFilters({ projects, members, allTags }: Props) {
             active={assigneeId === m.id}
           >
             {m.name ?? m.email}
+            {m.kind === "AGENT" && <Badge variant="outline">Agent</Badge>}
           </FilterMenuItem>
         ))}
       </FilterButton>

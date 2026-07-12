@@ -7,7 +7,8 @@ import {
   type LaneInputTask,
 } from "@/lib/kanban/lanes";
 
-const M = (id: string, name: string | null, email = `${id}@x`) => ({ id, name, email });
+const M = (id: string, name: string | null, email = `${id}@x`, kind: "HUMAN" | "AGENT" = "HUMAN") =>
+  ({ id, name, email, kind });
 const T = (id: string, color = "#fff") => ({ id, name: id, color });
 const P = (id: string, code: string, name: string) => ({ id, code, name });
 const stages = [{ id: "s1", name: "Backlog" }, { id: "s2", name: "Doing" }];
@@ -63,6 +64,16 @@ describe("computeLanes", () => {
       P("p1", "WEB", "Website"),
     ]);
     expect(lanes.map((l) => l.id)).toEqual(["p1", "p2"]);
+  });
+
+  it("assignee lanes carry the member's kind; tag/project lanes carry none", () => {
+    const aLanes = computeLanes("assignee", [M("u1", "Alice"), M("u2", "Flight Computer", "u2@x", "AGENT")], [], []);
+    expect(aLanes.map((l) => [l.label, l.kind])).toEqual([
+      ["Alice", "HUMAN"],
+      ["Flight Computer", "AGENT"],
+    ]);
+    expect(computeLanes("tag", [], [T("t1")], [])[0].kind).toBeUndefined();
+    expect(computeLanes("project", [], [], [P("p1", "X", "X")])[0].kind).toBeUndefined();
   });
 
   it("assignee / tag lanes carry no sublabel", () => {

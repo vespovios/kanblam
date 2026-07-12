@@ -35,7 +35,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     prisma.user.findMany({
       where: { workspaceId },
       select: { id: true, name: true, email: true, kind: true },
-      orderBy: { email: "asc" },
+      // Name, not email — agents carry hidden synthetic emails that would
+      // otherwise scatter them through the member dropdowns.
+      orderBy: { name: "asc" },
     }),
     prisma.priority.findMany({
       where: { workspaceId },

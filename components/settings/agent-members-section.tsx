@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { API_TOKEN_SCOPES, type ApiTokenScope } from "@/lib/validators/api-token";
+import { formatShortDate } from "@/lib/dates/format";
 
 /** Settings → Agent members. API-only workspace members (kind=AGENT) that
  *  can be assigned tasks and act through /api/v1 via their own tokens.
@@ -35,9 +36,6 @@ export interface AgentMemberRow {
 interface Props {
   agents: AgentMemberRow[];
 }
-
-const fmt = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
 export function AgentMembersSection({ agents }: Props) {
   const router = useRouter();
@@ -336,7 +334,7 @@ export function AgentMembersSection({ agents }: Props) {
                         <Badge variant="outline">Agent</Badge>
                       </div>
                     )}
-                    <p className="text-xs text-muted-foreground">Joined {fmt(agent.createdAt)}</p>
+                    <p className="text-xs text-muted-foreground">Joined {formatShortDate(agent.createdAt)}</p>
                   </div>
                   {editingId !== agent.id && (
                     <div className="flex items-center gap-2">
@@ -458,8 +456,8 @@ export function AgentMembersSection({ agents }: Props) {
                             ))}
                           </div>
                           <p className="font-mono text-xs text-muted-foreground">
-                            {t.tokenPrefix}… · created {fmt(t.createdAt)} · last used {fmt(t.lastUsedAt)}
-                            {t.expiresAt ? ` · expires ${fmt(t.expiresAt)}` : ""}
+                            {t.tokenPrefix}… · created {formatShortDate(t.createdAt)} · last used {formatShortDate(t.lastUsedAt)}
+                            {t.expiresAt ? ` · expires ${formatShortDate(t.expiresAt)}` : ""}
                           </p>
                         </div>
                         <Button
@@ -479,7 +477,7 @@ export function AgentMembersSection({ agents }: Props) {
                         <div className="min-w-0 flex-1">
                           <span className="truncate text-sm font-medium line-through">{t.name}</span>
                           <p className="font-mono text-xs text-muted-foreground">
-                            {t.tokenPrefix}… · revoked {fmt(t.revokedAt)}
+                            {t.tokenPrefix}… · revoked {formatShortDate(t.revokedAt)}
                           </p>
                         </div>
                       </li>

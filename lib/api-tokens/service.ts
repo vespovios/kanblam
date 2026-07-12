@@ -75,7 +75,8 @@ export async function listApiTokens(userId: string) {
 
 /** Revoke (tombstone) a token. Scoped to the owner — returns false when the
  *  token doesn't exist or belongs to someone else (indistinguishable on
- *  purpose). Idempotent: revoking twice is fine. */
+ *  purpose). A second revoke is harmless (the tombstone is already set) but
+ *  matches zero rows and returns false, so the route 404s on the repeat. */
 export async function revokeApiToken(userId: string, tokenId: string): Promise<boolean> {
   const { count } = await prisma.apiToken.updateMany({
     where: { id: tokenId, userId, revokedAt: null },
