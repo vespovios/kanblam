@@ -50,6 +50,22 @@ export const authConfig: NextAuthConfig = {
     }),
   ],
   callbacks: {
+    // Defense-in-depth: agent members (kind=AGENT) must never sign in
+    // interactively. Their synthetic @agents.internal email is undeliverable
+    // and their passwordHash is null (credentials login structurally
+    // impossible), but the magic-link path would still mint a session if a
+    // link were ever issued — so reject AGENT users here too. Fires on both
+    // the send-link request and the link-verification callback.
+    async signIn({ user, account }) {
+      if (account?.provider !== "nodemailer") return true;
+      const email = user.email?.toLowerCase();
+      if (!email) return false;
+      const dbUser = await prisma.user.findFirst({
+        where: { email },
+        select: { kind: true },
+      });
+      return dbUser?.kind !== "AGENT";
+    },
     async jwt({ token, user }) {
       if (user) {
         const dbUser = await prisma.user.findUnique({
