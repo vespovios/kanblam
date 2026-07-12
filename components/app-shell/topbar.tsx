@@ -157,6 +157,11 @@ export function Topbar({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem disabled>{userEmail}</DropdownMenuItem>
+              {/* Docs live outside the app shell — new tab so the board
+                  stays where it was. Only in-app route to /docs. */}
+              <DropdownMenuItem onClick={() => window.open("/docs", "_blank", "noopener")}>
+                Docs
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
                 Sign out
               </DropdownMenuItem>
