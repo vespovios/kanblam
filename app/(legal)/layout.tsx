@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-/** Minimal layout for legal pages (/privacy, and /terms when it lands) —
+/** Shared layout for the (legal) route group — /privacy and /terms get
  *  the docs header without the sidebar, prose at a comfortable reading
  *  width. */
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
