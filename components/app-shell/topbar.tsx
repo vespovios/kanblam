@@ -24,7 +24,7 @@ interface TopbarProps {
   userEmail: string;
   role: UserRole;
   projects: { id: string; name: string; code: string }[];
-  members: { id: string; name: string | null; email: string }[];
+  members: { id: string; name: string | null; email: string; kind: "HUMAN" | "AGENT" }[];
   allTags: { id: string; name: string; color: string }[];
 }
 

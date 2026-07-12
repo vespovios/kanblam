@@ -11,6 +11,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
 import { TagPill } from "@/components/tags/tag-pill";
 import { QUADRANT_IDS, QUADRANT_META, type QuadrantId } from "@/lib/eisenhower/quadrants";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ interface Member {
   id: string;
   name: string | null;
   email: string;
+  kind: "HUMAN" | "AGENT";
 }
 
 interface Props {
@@ -177,8 +179,14 @@ export function MobileFilters({ projects, members, allTags }: Props) {
                 key={m.id}
                 selected={assigneeId === m.id}
                 onClick={() => setParam("assigneeId", m.id)}
-                label={m.name ?? m.email}
-              />
+              >
+                {m.name ?? m.email}
+                {m.kind === "AGENT" && (
+                  <Badge variant="outline" className="ml-1.5">
+                    Agent
+                  </Badge>
+                )}
+              </RadioRow>
             ))}
           </FilterSection>
 

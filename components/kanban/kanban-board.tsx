@@ -9,6 +9,7 @@ import { KanbanColumn, type KanbanStage } from "./kanban-column";
 import { KanbanCardOverlay } from "./kanban-card";
 import { KanbanLaneCell } from "./kanban-lane-cell";
 import { KanbanLaneSummary } from "./kanban-lane-summary";
+import { Badge } from "@/components/ui/badge";
 import { TaskEditDrawer } from "@/components/tasks/task-edit-drawer";
 import { TaskCreateDialog } from "@/components/tasks/task-create-dialog";
 import type { TaskRow } from "@/components/tasks/tasks-table";
@@ -314,9 +315,10 @@ export function KanbanBoard({
               const isCollapsed = collapsedLanes.has(laneRow.id);
               // Full label for tooltip + screen readers (the visible label
               // may be split across two lines for project lanes).
-              const fullLabel = laneRow.sublabel
-                ? `${laneRow.label} — ${laneRow.sublabel}`
-                : laneRow.label;
+              const fullLabel =
+                (laneRow.sublabel
+                  ? `${laneRow.label} — ${laneRow.sublabel}`
+                  : laneRow.label) + (laneRow.kind === "AGENT" ? " (Agent)" : "");
               return (
                 <Fragment key={`row-${laneRow.id}`}>
                   {/* Whole lane label cell is the collapse toggle — click
@@ -344,8 +346,11 @@ export function KanbanBoard({
                       )}
                     </span>
                     <span className="min-w-0 leading-snug">
-                      <span className="block text-xs font-semibold truncate">
-                        {laneRow.label}
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-xs font-semibold truncate">
+                          {laneRow.label}
+                        </span>
+                        {laneRow.kind === "AGENT" && <Badge variant="outline">Agent</Badge>}
                       </span>
                       {laneRow.sublabel && (
                         <span className="block text-[11px] text-muted-foreground leading-tight line-clamp-2">

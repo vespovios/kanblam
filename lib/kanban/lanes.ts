@@ -8,12 +8,16 @@ export interface Lane {
    *  it for the project name (label = code); assignee/tag lanes leave it
    *  undefined. */
   sublabel?: string;
+  /** Member kind — set on assignee lanes only, so the board can render
+   *  the Agent chip next to agent lane labels. */
+  kind?: "HUMAN" | "AGENT";
 }
 
 export interface LaneInputMember {
   id: string;
   name: string | null;
   email: string;
+  kind: "HUMAN" | "AGENT";
 }
 
 export interface LaneInputTag {
@@ -61,7 +65,7 @@ export function computeLanes(
   if (axis === "none") return [];
   if (axis === "assignee") {
     return members
-      .map((m) => ({ id: m.id, label: m.name ?? m.email }))
+      .map((m) => ({ id: m.id, label: m.name ?? m.email, kind: m.kind }))
       .sort((a, b) => a.label.localeCompare(b.label) || a.id.localeCompare(b.id));
   }
   if (axis === "tag") {
