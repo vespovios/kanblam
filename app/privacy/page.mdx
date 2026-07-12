@@ -1,0 +1,112 @@
+# Privacy Policy
+
+_Last updated: 12 July 2026_
+
+KanBlam is operated by **Computability Ltd** ("we", "us"). This page explains
+what data the hosted service at kanblam.com collects, why, and what your
+rights are. Questions or requests: **privacy@kanblam.com**.
+
+The short version:
+
+- **No ads, no tracking cookies, and we never sell data.**
+- **The app itself is not instrumented.** Once you're signed in, nothing you
+  do — boards, tasks, comments — is analytically tracked or recorded.
+- Analytics run **only on the public pages** (landing, docs, login, signup),
+  are cookieless, EU-hosted, and capture no personal information.
+- **Self-hosting KanBlam sends us nothing.** Your server, your data.
+
+## What we collect, and why
+
+**Account data.** Your email address, display name, and password. Passwords
+are stored only as bcrypt hashes — we cannot read them. Used to sign you in
+and connect you to your workspace.
+
+**Workspace content.** The projects, tasks, subtasks, comments, tags,
+holidays, and settings you (or agent members you connect) put on your boards.
+This is your data; we store and process it solely to provide the service to
+you and never for any other purpose.
+
+**API tokens.** Personal and agent tokens are stored as SHA-256 hashes. The
+plaintext token is shown to you once at creation and never retained.
+
+**Transactional email.** Workspace invitations and sign-in links are sent to
+the email addresses involved via Resend, our email delivery provider. We
+don't send marketing email to account holders.
+
+**Waitlist (pre-launch).** Joining the waitlist sends your email address to
+us as a notification email. Our analytics records only the domain part
+(e.g. `gmail.com`) — never the address itself.
+
+**Billing.** Paid hosted plans are processed by Polar.sh as merchant of
+record. Your card details go to Polar and their payment processor — they
+never touch our servers. We store your workspace's subscription status
+(plan, trial/active/lapsed, renewal dates).
+
+**Analytics — public pages only.** We use PostHog (EU region) to count visits
+to the public pages: the landing page, docs, login and signup. It runs
+cookieless (in-memory only), records no session replays, and captures no
+personal information. The authenticated app is never instrumented.
+
+**Infrastructure logs.** kanblam.com is served through Cloudflare, so
+requests transit their network (including your IP address) for TLS, caching
+and DDoS protection, subject to Cloudflare's own processing terms. Our
+servers keep short-lived operational logs for debugging and abuse
+prevention.
+
+## Cookies
+
+- **Session cookie** — essential; keeps you signed in. No session cookie is
+  set until you log in.
+- **`kb_currency`** — remembers the pricing currency you picked on the
+  landing page.
+- That's all. No analytics or third-party tracking cookies.
+
+## Where your data lives
+
+The hosted service runs on servers in the **EU**, and analytics data stays in
+PostHog's EU region. The processors we use:
+
+| Processor | Purpose |
+|---|---|
+| Contabo (EU) | Server hosting |
+| Cloudflare | TLS, proxy, DDoS protection |
+| Resend | Transactional email |
+| Polar.sh | Payments (merchant of record) |
+| PostHog (EU) | Public-page analytics |
+
+## Retention and deletion
+
+- Workspace data is kept for as long as your workspace is active.
+- **Demo workspaces** (try.kanblam.com) are throwaway by design and are
+  automatically deleted within about 24 hours.
+- Deleting content in the app (tasks, projects, workspaces) removes it from
+  the live database immediately.
+- To delete your account and all associated data, or to request a copy of
+  your data, email **privacy@kanblam.com** — we'll complete the request
+  within 30 days.
+
+## Your rights
+
+If you're in the EU/EEA or UK, the GDPR gives you the right to access,
+correct, export, and erase your personal data, and to object to or restrict
+its processing. Email **privacy@kanblam.com** to exercise any of these. You
+also have the right to lodge a complaint with your local supervisory
+authority.
+
+## Self-hosting
+
+KanBlam is open source (AGPL-3.0). A self-hosted instance communicates only
+with your own infrastructure: there is no phone-home, no telemetry, and
+analytics are off by default (with no PostHog key configured, no analytics
+code even loads). This policy applies to the hosted service at kanblam.com,
+not to instances others run.
+
+## Changes
+
+If this policy changes, we'll update this page and the date at the top.
+Material changes to how we handle account data will be announced to account
+holders by email.
+
+## Contact
+
+**privacy@kanblam.com** — or Computability Ltd, for formal correspondence.
