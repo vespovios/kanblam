@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { API_TOKEN_SCOPES, type ApiTokenScope } from "@/lib/validators/api-token";
+import { formatShortDate } from "@/lib/dates/format";
 
 /** Settings → API tokens. Per-user personal access tokens for /api/v1.
  *  The raw token is displayed exactly once, right after creation, in a
@@ -28,9 +29,6 @@ interface Props {
   initialTokens: ApiTokenRow[];
 }
 
-const fmt = (iso: string | null) =>
-  iso ? new Date(iso).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" }) : "—";
-
 export function ApiTokensSection({ initialTokens }: Props) {
   const [tokens, setTokens] = useState<ApiTokenRow[]>(initialTokens);
   const [name, setName] = useState("");
@@ -40,6 +38,9 @@ export function ApiTokensSection({ initialTokens }: Props) {
    *  that same token clears the show-once box too. */
   const [freshToken, setFreshToken] = useState<{ raw: string; id: string } | null>(null);
   const [confirmRevoke, setConfirmRevoke] = useState<string | null>(null);
+  // In-flight guard so a confirm click mid-flight can't double-fire the
+  // DELETE (same pattern as AgentMembersSection's token revoke).
+  const [revokingTokenId, setRevokingTokenId] = useState<string | null>(null);
 
   async function refresh() {
     const res = await fetch("/api/settings/api-tokens");
@@ -83,7 +84,9 @@ export function ApiTokensSection({ initialTokens }: Props) {
       setConfirmRevoke(id);
       return;
     }
+    if (revokingTokenId) return;
     setConfirmRevoke(null);
+    setRevokingTokenId(id);
     try {
       const res = await fetch(`/api/settings/api-tokens/${id}`, { method: "DELETE" });
       if (!res.ok) {
@@ -97,6 +100,8 @@ export function ApiTokensSection({ initialTokens }: Props) {
       await refresh();
     } catch {
       toast.error("Network error — try again.");
+    } finally {
+      setRevokingTokenId(null);
     }
   }
 
@@ -195,8 +200,8 @@ export function ApiTokensSection({ initialTokens }: Props) {
                   ))}
                 </div>
                 <p className="font-mono text-xs text-muted-foreground">
-                  {t.tokenPrefix}… · created {fmt(t.createdAt)} · last used {fmt(t.lastUsedAt)}
-                  {t.expiresAt ? ` · expires ${fmt(t.expiresAt)}` : ""}
+                  {t.tokenPrefix}… · created {formatShortDate(t.createdAt)} · last used {formatShortDate(t.lastUsedAt)}
+                  {t.expiresAt ? ` · expires ${formatShortDate(t.expiresAt)}` : ""}
                 </p>
               </div>
               <Button
@@ -205,6 +210,7 @@ export function ApiTokensSection({ initialTokens }: Props) {
                 variant={confirmRevoke === t.id ? "destructive" : "outline"}
                 onClick={() => onRevoke(t.id)}
                 onBlur={() => setConfirmRevoke(null)}
+                disabled={revokingTokenId === t.id}
               >
                 {confirmRevoke === t.id ? "Confirm revoke" : "Revoke"}
               </Button>
@@ -215,7 +221,7 @@ export function ApiTokensSection({ initialTokens }: Props) {
               <div className="min-w-0 flex-1">
                 <span className="truncate text-sm font-medium line-through">{t.name}</span>
                 <p className="font-mono text-xs text-muted-foreground">
-                  {t.tokenPrefix}… · revoked {fmt(t.revokedAt)}
+                  {t.tokenPrefix}… · revoked {formatShortDate(t.revokedAt)}
                 </p>
               </div>
             </li>
